@@ -3,7 +3,10 @@ from __future__ import annotations
 import datetime as dt
 import math
 import os
+import threading
+import time
 import uuid
+import webbrowser
 from pathlib import Path
 from typing import Any
 
@@ -22,12 +25,11 @@ from core.qa_manager import QAManager
 from core.pipeline_adapter import PipelineAdapter
 
 
-# ============================================================
-# APPLICATION PATHS
-# ============================================================
+# ---------------------------------------------------------------------------
+# APPLICATION CONFIGURATION
+# ---------------------------------------------------------------------------
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-
 DATA = os.path.join(BASE, "data")
 
 PIPELINE = os.environ.get(
@@ -35,308 +37,268 @@ PIPELINE = os.environ.get(
     r"C:\Users\anish\OneDrive\Desktop\SPARK_PHASE1",
 )
 
+HOST = os.environ.get("SPARK_HOST", "127.0.0.1")
+PORT = int(os.environ.get("SPARK_PORT", "5000"))
 
-# ============================================================
-# FLASK APPLICATION
-# ============================================================
+
+# ---------------------------------------------------------------------------
+# APPLICATION INITIALIZATION
+# ---------------------------------------------------------------------------
 
 app = Flask(__name__)
 
 app.config["MAX_CONTENT_LENGTH"] = 200 * 1024 * 1024
 
-
-# ============================================================
-# MANAGERS
-# ============================================================
-
 dm = DatasetManager(DATA)
+qa = QAManager(os.path.join(DATA, "qa"))
 
-qa = QAManager(
-    os.path.join(DATA, "qa")
-)
-
+# IMPORTANT:
+# This adapter loads the ORIGINAL SPARK ML pipeline.
+# No prediction is fabricated inside this application.
 ml = PipelineAdapter(PIPELINE)
 
 
-# ============================================================
-# JSON SERIALIZATION
-# ============================================================
-#
-# Pandas / NumPy frequently return values such as:
-#
-#   numpy.int64
-#   numpy.float64
-#   numpy.bool_
-#   numpy.ndarray
-#   pandas.Timestamp
-#   pandas.NA
-#
-# Flask's JSON encoder does not serialize all of these
-# automatically.
-#
-# This function recursively converts them into standard
-# JSON-compatible Python values.
-# ============================================================
-
+# ---------------------------------------------------------------------------
+# JSON SAFETY
+# ---------------------------------------------------------------------------
 
 def _json_safe(value: Any) -> Any:
-    """
-    Recursively convert NumPy/Pandas/Python objects into
-    values that can safely be serialized as JSON.
+    """Convert NumPy/Pandas/Python values into JSON-safe values."""
 
-    Supported:
-        - NumPy integer
-        - NumPy floating point
-        - NumPy boolean
-        - NumPy arrays
-        - Pandas Timestamp
-        - Pandas Timedelta
-        - Pandas NA / NaN
-        - Python datetime/date/time
-        - UUID
-        - pathlib.Path
-        - dict
-        - list
-        - tuple
-        - set
-    """
-
-    # --------------------------------------------------------
-    # None / standard JSON values
-    # --------------------------------------------------------
-
-    if value is None:
-        return None
-
-    if isinstance(value, (str, bool, int)):
+    if value is None or isinstance(value, (str, bool, int)):
         return value
-
-    # --------------------------------------------------------
-    # Python floating point
-    # --------------------------------------------------------
 
     if isinstance(value, float):
-        if not math.isfinite(value):
-            return None
-
-        return value
-
-    # --------------------------------------------------------
-    # NumPy scalar values
-    # --------------------------------------------------------
+        return value if math.isfinite(value) else None
 
     if isinstance(value, np.integer):
         return int(value)
 
     if isinstance(value, np.floating):
-        numeric_value = float(value)
-
-        if not math.isfinite(numeric_value):
-            return None
-
-        return numeric_value
+        converted = float(value)
+        return converted if math.isfinite(converted) else None
 
     if isinstance(value, np.bool_):
         return bool(value)
 
-    # --------------------------------------------------------
-    # NumPy arrays
-    # --------------------------------------------------------
-
     if isinstance(value, np.ndarray):
-        return [_json_safe(item) for item in value.tolist()]
-
-    # --------------------------------------------------------
-    # Pandas missing values
-    # --------------------------------------------------------
+        return [_json_safe(v) for v in value.tolist()]
 
     if value is pd.NA:
         return None
 
-    # --------------------------------------------------------
-    # Pandas Timestamp
-    # --------------------------------------------------------
-
     if isinstance(value, pd.Timestamp):
-        if pd.isna(value):
-            return None
-
-        return value.isoformat()
-
-    # --------------------------------------------------------
-    # Pandas Timedelta
-    # --------------------------------------------------------
+        return value.isoformat() if not pd.isna(value) else None
 
     if isinstance(value, pd.Timedelta):
         return value.total_seconds()
 
-    # --------------------------------------------------------
-    # Python date / datetime / time
-    # --------------------------------------------------------
-
     if isinstance(value, (dt.datetime, dt.date, dt.time)):
         return value.isoformat()
-
-    # --------------------------------------------------------
-    # Python timedelta
-    # --------------------------------------------------------
 
     if isinstance(value, dt.timedelta):
         return value.total_seconds()
 
-    # --------------------------------------------------------
-    # UUID
-    # --------------------------------------------------------
-
     if isinstance(value, uuid.UUID):
         return str(value)
-
-    # --------------------------------------------------------
-    # pathlib.Path
-    # --------------------------------------------------------
 
     if isinstance(value, Path):
         return str(value)
 
-    # --------------------------------------------------------
-    # Dictionary
-    # --------------------------------------------------------
-
     if isinstance(value, dict):
         return {
-            str(key): _json_safe(item)
-            for key, item in value.items()
+            str(k): _json_safe(v)
+            for k, v in value.items()
         }
 
-    # --------------------------------------------------------
-    # List / tuple / set / frozenset
-    # --------------------------------------------------------
-
     if isinstance(value, (list, tuple, set, frozenset)):
-        return [
-            _json_safe(item)
-            for item in value
-        ]
-
-    # --------------------------------------------------------
-    # Generic Pandas / NumPy scalar fallback
-    # --------------------------------------------------------
+        return [_json_safe(v) for v in value]
 
     if hasattr(value, "item"):
         try:
-            converted = value.item()
-
-            if converted is not value:
-                return _json_safe(converted)
-
+            return _json_safe(value.item())
         except Exception:
             pass
-
-    # --------------------------------------------------------
-    # Generic iterable fallback
-    # --------------------------------------------------------
 
     if hasattr(value, "tolist"):
         try:
-            converted = value.tolist()
-
-            if converted is not value:
-                return _json_safe(converted)
-
+            return _json_safe(value.tolist())
         except Exception:
             pass
 
-    # --------------------------------------------------------
-    # Final fallback
-    # --------------------------------------------------------
-    #
-    # Do not crash the API because an unusual value was returned.
-    # Converting unknown objects to string is safer than returning
-    # a serialization exception.
-    #
-    # --------------------------------------------------------
+    try:
+        if pd.isna(value):
+            return None
+    except Exception:
+        pass
 
     return str(value)
 
 
-def safe_jsonify(data: Any = None, status_code: int | None = None, **kwargs):
+def safe_jsonify(
+    data: Any = None,
+    status_code: int | None = None,
+):
+    """Return a Flask JSON response with all values normalized."""
+
+    response = jsonify(_json_safe(data))
+
+    if status_code is not None:
+        return response, status_code
+
+    return response
+
+
+# ---------------------------------------------------------------------------
+# QA COMMENT
+# ---------------------------------------------------------------------------
+
+def _qa_comment(
+    statistical: dict[str, Any],
+    model: dict[str, Any],
+) -> str:
     """
-    Centralized JSON response helper.
+    Generate a concise engineering evidence statement.
 
-    Every response passes through _json_safe() before Flask
-    serializes it.
+    The statement does not make the final QA disposition.
+    It reports statistical evidence and the actual ML pipeline result.
     """
 
-    cleaned = _json_safe(data)
+    state = statistical.get("state", "REVIEW")
+    score = statistical.get("score")
+    contributors = statistical.get("contributors") or []
 
-    if kwargs:
-        cleaned_kwargs = _json_safe(kwargs)
+    model_available = bool(model.get("available"))
 
-        if isinstance(cleaned, dict):
-            cleaned.update(cleaned_kwargs)
-        else:
-            cleaned = cleaned_kwargs
+    prediction = model.get("prediction_168h_uA")
 
-    if status_code is None:
-        return jsonify(cleaned)
+    lower = model.get("prediction_lower_05_uA")
+    upper = model.get("prediction_upper_95_uA")
 
-    return jsonify(cleaned), status_code
+    selected_model = model.get("model")
 
+    # ---------------------------------------------------------------
+    # Statistical evidence
+    # ---------------------------------------------------------------
 
-# ============================================================
-# HEALTH
-# ============================================================
+    if contributors:
+        top = contributors[0]
 
+        signal = top.get(
+            "signal",
+            "the leading signal",
+        )
 
-@app.get("/api/health")
-def health():
-    return safe_jsonify(
-        {
-            "status": "ok",
-            "service": "SPARK Engineering Quality Intelligence",
-            "version": "6.0.0",
-        }
+        robust_z = top.get("robust_z")
+
+        evidence = (
+            f"{signal} is the leading statistical contributor"
+        )
+
+        if isinstance(robust_z, (int, float)):
+            evidence += f" at robust-z {robust_z:.2f}"
+
+        evidence += "."
+
+    else:
+        evidence = (
+            "No strong population-level numeric deviation "
+            "was detected."
+        )
+
+    # ---------------------------------------------------------------
+    # Statistical score
+    # ---------------------------------------------------------------
+
+    if isinstance(score, (int, float)):
+        score_text = f"{score}/100"
+    else:
+        score_text = "not available"
+
+    # ---------------------------------------------------------------
+    # Real ML evidence
+    # ---------------------------------------------------------------
+
+    if model_available:
+        model_text = (
+            " The original SPARK Module-B ML pipeline "
+            f"({selected_model or 'selected model'}) "
+            "returned a 168h prediction"
+        )
+
+        if isinstance(prediction, (int, float)):
+            model_text += f" of {prediction:.3f} uA"
+
+        if (
+            isinstance(lower, (int, float))
+            and isinstance(upper, (int, float))
+        ):
+            model_text += (
+                f" with a model interval of "
+                f"{lower:.3f}–{upper:.3f} uA"
+            )
+
+        model_text += "."
+
+    else:
+        model_text = (
+            " The original SPARK Module-B ML pipeline "
+            "did not return an inference for this record."
+        )
+
+    return (
+        f"Statistical assessment is {state} with an "
+        f"analytical score of {score_text}. "
+        f"{evidence}{model_text}"
     )
 
 
-# ============================================================
-# HOME
-# ============================================================
-
+# ---------------------------------------------------------------------------
+# MAIN PAGE
+# ---------------------------------------------------------------------------
 
 @app.get("/")
 def index():
     return render_template("index.html")
 
 
-# ============================================================
-# DATASET LIST
-# ============================================================
+# ---------------------------------------------------------------------------
+# HEALTH
+# ---------------------------------------------------------------------------
 
+@app.get("/api/health")
+def health():
+    return safe_jsonify(
+        {
+            "status": "ok",
+            "service": (
+                "SPARK Engineering Quality Intelligence"
+            ),
+            "version": "7.0.0",
+        }
+    )
+
+
+# ---------------------------------------------------------------------------
+# DATASETS
+# ---------------------------------------------------------------------------
 
 @app.get("/api/datasets")
 def list_datasets():
     try:
-        datasets = dm.list()
-
         return safe_jsonify(
             {
-                "datasets": datasets
+                "datasets": dm.list(),
             }
         )
 
     except DatasetError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             404,
         )
-
-
-# ============================================================
-# DATASET UPLOAD
-# ============================================================
 
 
 @app.post("/api/datasets/upload")
@@ -346,116 +308,103 @@ def upload():
     if not file or not file.filename:
         return safe_jsonify(
             {
-                "detail": "Select a CSV or Excel dataset."
+                "detail": (
+                    "Select a CSV or Excel dataset."
+                ),
             },
             400,
         )
 
     try:
-        result = dm.save_upload(file)
-
         return safe_jsonify(
-            result,
+            dm.save_upload(file),
             201,
         )
 
     except DatasetError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             400,
         )
-
-
-# ============================================================
-# DATASET ACTIVATE
-# ============================================================
 
 
 @app.post("/api/datasets/<dataset_id>/activate")
 def activate(dataset_id):
     try:
         result = dm.activate(dataset_id)
-
         return safe_jsonify(result)
 
     except DatasetError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             404,
         )
-
-
-# ============================================================
-# DATASET DELETE
-# ============================================================
 
 
 @app.delete("/api/datasets/<dataset_id>")
 def remove(dataset_id):
     try:
-        result = dm.remove(dataset_id)
-
-        return safe_jsonify(result)
+        return safe_jsonify(
+            dm.remove(dataset_id)
+        )
 
     except DatasetError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             404,
         )
 
 
-# ============================================================
+# ---------------------------------------------------------------------------
 # DATASET ANALYSIS
-# ============================================================
-
+# ---------------------------------------------------------------------------
 
 @app.get("/api/datasets/<dataset_id>/analysis")
 def analysis(dataset_id):
     try:
         _, df = dm.get(dataset_id)
 
-        result = analyze_dataset(df)
-
-        # Important:
-        # analyze_dataset() may contain NumPy/Pandas values such as
-        # numpy.int64, numpy.float64, numpy.bool_, etc.
-        #
-        # safe_jsonify() recursively converts all of them.
-        return safe_jsonify(result)
+        return safe_jsonify(
+            analyze_dataset(df)
+        )
 
     except DatasetError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             404,
         )
 
 
-# ============================================================
+# ---------------------------------------------------------------------------
 # SIGNAL CONTROL
-# ============================================================
+# ---------------------------------------------------------------------------
 
-
-@app.get("/api/datasets/<dataset_id>/signals/<path:column>/control")
+@app.get(
+    "/api/datasets/<dataset_id>/signals/<path:column>/control"
+)
 def control(dataset_id, column):
     try:
         _, df = dm.get(dataset_id)
 
-        result = signal_control(df, column)
-
-        return safe_jsonify(result)
+        return safe_jsonify(
+            signal_control(
+                df,
+                column,
+            )
+        )
 
     except DatasetError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             404,
         )
@@ -463,112 +412,249 @@ def control(dataset_id, column):
     except KeyError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             400,
         )
 
 
-# ============================================================
+# ---------------------------------------------------------------------------
 # RECORD ASSESSMENT
-# ============================================================
+# ---------------------------------------------------------------------------
 
-
-@app.get("/api/datasets/<dataset_id>/records/<int:index>/assessment")
+@app.get(
+    "/api/datasets/<dataset_id>/records/<int:index>/assessment"
+)
 def assessment(dataset_id, index):
+    """
+    Return statistical + ORIGINAL SPARK ML assessment.
+
+    ML path:
+
+        Dataset
+            ↓
+        Original SPARK feature engineering
+            ↓
+        Original module_b_24h.joblib
+            ↓
+        Original predict_module_b()
+            ↓
+        QA Inspector
+    """
+
     try:
+        # -----------------------------------------------------------
+        # Load selected dataset
+        # -----------------------------------------------------------
+
         _, df = dm.get(dataset_id)
 
-        result = record_assessment(
+        # -----------------------------------------------------------
+        # Existing statistical assessment
+        # -----------------------------------------------------------
+
+        statistical = record_assessment(
             df,
             index,
         )
 
-        model_result = ml.assess(
+        # -----------------------------------------------------------
+        # REAL SPARK ML INFERENCE
+        # -----------------------------------------------------------
+
+        model = ml.assess(
             df,
             index,
         )
 
-        result["model"] = model_result
+        # -----------------------------------------------------------
+        # API RESPONSE
+        # -----------------------------------------------------------
+
+        result = {
+            **statistical,
+
+            # Complete raw model response.
+            "model": model,
+
+            # -------------------------------------------------------
+            # ML availability
+            # -------------------------------------------------------
+
+            "ai_available": model.get(
+                "available"
+            ),
+
+            # -------------------------------------------------------
+            # Actual selected model
+            # -------------------------------------------------------
+
+            "ai_model": model.get(
+                "model"
+            ),
+
+            # -------------------------------------------------------
+            # Real 168h prediction
+            # -------------------------------------------------------
+
+            "ai_prediction_168h_uA": model.get(
+                "prediction_168h_uA"
+            ),
+
+            # -------------------------------------------------------
+            # Real prediction interval
+            # -------------------------------------------------------
+
+            "ai_prediction_lower_05_uA": model.get(
+                "prediction_lower_05_uA"
+            ),
+
+            "ai_prediction_median_50_uA": model.get(
+                "prediction_median_50_uA"
+            ),
+
+            "ai_prediction_upper_95_uA": model.get(
+                "prediction_upper_95_uA"
+            ),
+
+            "ai_prediction_interval_width_uA": model.get(
+                "prediction_interval_width_uA"
+            ),
+
+            # -------------------------------------------------------
+            # Predicted slope
+            # -------------------------------------------------------
+
+            "ai_predicted_slope_24_168_uA_per_h": model.get(
+                "predicted_slope_24_168_uA_per_h"
+            ),
+
+            # -------------------------------------------------------
+            # Safety information
+            # -------------------------------------------------------
+
+            "ai_safety_margin_uA": model.get(
+                "safety_margin_uA"
+            ),
+
+            "ai_conformal_safety_upper_uA": model.get(
+                "conformal_safety_upper_uA"
+            ),
+
+            # -------------------------------------------------------
+            # Actual 168h value
+            # -------------------------------------------------------
+
+            "ai_actual_ir_168h_uA": model.get(
+                "actual_ir_168h_uA"
+            ),
+
+            # -------------------------------------------------------
+            # Prediction error
+            # -------------------------------------------------------
+
+            "ai_absolute_prediction_error_uA": model.get(
+                "absolute_prediction_error_uA"
+            ),
+
+            # -------------------------------------------------------
+            # Human-readable engineering statement
+            # -------------------------------------------------------
+
+            "qa_comment": _qa_comment(
+                statistical,
+                model,
+            ),
+
+            # -------------------------------------------------------
+            # Traceability
+            # -------------------------------------------------------
+
+            "assessment_source": {
+                "analytical": (
+                    "SPARK statistical evidence"
+                ),
+                "ml": (
+                    "Original SPARK Module-B "
+                    "trained ML pipeline"
+                ),
+                "feature_engineering": (
+                    "Original SPARK "
+                    "build_feature_table()"
+                ),
+                "inference": (
+                    "Original SPARK "
+                    "predict_module_b()"
+                ),
+                "model_artifact": (
+                    "module_b_24h.joblib"
+                ),
+            },
+        }
 
         return safe_jsonify(result)
 
     except DatasetError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             404,
         )
 
-    except IndexError as exc:
+    except (IndexError, KeyError) as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
-            },
-            400,
-        )
-
-    except KeyError as exc:
-        return safe_jsonify(
-            {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             400,
         )
 
 
-# ============================================================
+# ---------------------------------------------------------------------------
 # DATASET COMPARISON
-# ============================================================
-
+# ---------------------------------------------------------------------------
 
 @app.get("/api/datasets/<dataset_id>/comparison")
 def comparison(dataset_id):
     try:
         _, df = dm.get(dataset_id)
 
-        result = dataset_comparison(df)
-
-        return safe_jsonify(result)
+        return safe_jsonify(
+            dataset_comparison(df)
+        )
 
     except DatasetError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             404,
         )
 
 
-# ============================================================
-# QA LIST
-# ============================================================
-
+# ---------------------------------------------------------------------------
+# QA RECORDS
+# ---------------------------------------------------------------------------
 
 @app.get("/api/qa/<dataset_id>")
 def qa_list(dataset_id):
     try:
-        items = qa.list(dataset_id)
+        dm.get(dataset_id)
 
         return safe_jsonify(
             {
-                "items": items
+                "items": qa.list(dataset_id),
             }
         )
 
-    except Exception as exc:
+    except DatasetError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
-            500,
+            404,
         )
-
-
-# ============================================================
-# QA SAVE
-# ============================================================
 
 
 @app.post("/api/qa/<dataset_id>")
@@ -580,20 +666,18 @@ def qa_save(dataset_id):
             silent=True
         ) or {}
 
-        result = qa.save(
-            dataset_id,
-            payload,
-        )
-
         return safe_jsonify(
-            result,
+            qa.save(
+                dataset_id,
+                payload,
+            ),
             201,
         )
 
     except DatasetError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             404,
         )
@@ -601,44 +685,32 @@ def qa_save(dataset_id):
     except ValueError as exc:
         return safe_jsonify(
             {
-                "detail": str(exc)
+                "detail": str(exc),
             },
             400,
         )
 
 
-# ============================================================
-# PIPELINE STATUS
-# ============================================================
-
+# ---------------------------------------------------------------------------
+# ML PIPELINE STATUS
+# ---------------------------------------------------------------------------
 
 @app.get("/api/pipeline/status")
 def pipeline_status():
-    try:
-        result = ml.status()
+    """
+    Return the real SPARK ML pipeline status.
 
-        return safe_jsonify(result)
+    This endpoint does not perform inference.
+    """
 
-    except Exception as exc:
-        return safe_jsonify(
-            {
-                "detail": str(exc)
-            },
-            500,
-        )
+    return safe_jsonify(
+        ml.status()
+    )
 
 
-# ============================================================
-# APPLICATION ERROR HANDLER
-# ============================================================
-#
-# This prevents unexpected backend exceptions from returning
-# an HTML Flask error page to the frontend.
-#
-# The actual exception is still printed to the console for
-# debugging.
-# ============================================================
-
+# ---------------------------------------------------------------------------
+# GLOBAL ERROR HANDLER
+# ---------------------------------------------------------------------------
 
 @app.errorhandler(Exception)
 def handle_unexpected_error(error):
@@ -656,22 +728,32 @@ def handle_unexpected_error(error):
     )
 
 
-# ============================================================
-# APPLICATION START
-# ============================================================
+# ---------------------------------------------------------------------------
+# AUTO-OPEN BROWSER
+# ---------------------------------------------------------------------------
 
+def _open_browser():
+    time.sleep(1.2)
+
+    webbrowser.open(
+        f"http://{HOST}:{PORT}",
+        new=2,
+    )
+
+
+# ---------------------------------------------------------------------------
+# APPLICATION ENTRYPOINT
+# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
+    threading.Thread(
+        target=_open_browser,
+        daemon=True,
+    ).start()
+
     app.run(
-        host=os.environ.get(
-            "SPARK_HOST",
-            "127.0.0.1",
-        ),
-        port=int(
-            os.environ.get(
-                "SPARK_PORT",
-                "5000",
-            )
-        ),
+        host=HOST,
+        port=PORT,
         debug=False,
+        use_reloader=False,
     )

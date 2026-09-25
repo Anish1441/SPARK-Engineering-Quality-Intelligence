@@ -1,8 +1,1130 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SPARK — Engineering Quality Intelligence</title><script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script><link rel="stylesheet" href="/static/css/style.css"></head><body data-theme="dark"><header><div class="brand"><b>◈ SPARK</b><small>ENGINEERING QUALITY INTELLIGENCE</small></div><div><span id="health">CHECKING</span><select id="theme"><option value="dark">Dark</option><option value="night">Night</option><option value="light">Light</option></select></div></header><div class="layout"><nav><button data-view="overview">Overview</button><button data-view="datasets">Datasets</button><button data-view="monitor">Process Monitor</button><button data-view="analysis">Analysis</button><button data-view="qa">QA Inspector</button><button data-view="history">Decision History</button></nav><main>
-<section id="overview" class="view active"><div class="hero"><div><label>ENGINEERING QUALITY WORKSPACE</label><h1>Evidence before disposition.</h1><p>Measured data, process behaviour, analytical screening and QA verification in one controlled workspace.</p></div><button id="begin" class="primary">Begin analysis</button></div><div id="cards" class="cards"></div><div class="two"><div class="panel"><b>PROCESS SNAPSHOT</b><div id="overviewPlot" class="plot"></div></div><div class="panel"><b>QUALITY SIGNALS</b><div id="overviewTable"></div></div></div></section>
-<section id="datasets" class="view"><div class="heading"><div><label>DATA MANAGEMENT</label><h2>Dataset control</h2><p>Load, activate, compare or remove datasets without disturbing the workspace.</p></div><label class="upload primary">Add dataset<input id="upload" type="file" accept=".csv,.xlsx,.xls"></label></div><div id="datasetList"></div></section>
-<section id="monitor" class="view"><div class="heading"><div><label>PROCESS BEHAVIOUR</label><h2>Monitor the population</h2></div><select id="signalSelect"></select></div><div class="two"><div class="panel"><b>CONTROL CHART</b><div id="controlPlot" class="plot tall"></div></div><div class="panel"><b>DISTRIBUTION</b><div id="histPlot" class="plot tall"></div></div></div></section>
-<section id="analysis" class="view"><label>ANALYTICAL EVIDENCE</label><h2>Patterns and variation</h2><div class="two"><div class="panel"><b>STABILITY</b><div id="stability"></div></div><div class="panel"><b>RELATIONSHIPS</b><div id="corrPlot" class="plot"></div></div></div></section>
-<section id="qa" class="view"><div class="heading"><div><label>QUALITY ASSURANCE</label><h2>Inspect and verify</h2></div><div><button id="prev">‹</button> <span id="record">Record —</span> <button id="next">›</button></div></div><div class="two"><div class="panel"><b>RECORD EVIDENCE</b><div id="evidence"></div></div><div class="panel"><b>QA DISPOSITION</b><div id="qaPanel"></div></div></div></section>
-<section id="history" class="view"><label>TRACEABILITY</label><h2>Decision history</h2><div class="panel" id="history"></div></section>
-<div id="toast"></div></main></div><script src="/static/js/app.js?v=6.0.0"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>SPARK — Engineering Quality Intelligence</title>
+
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body data-theme="dark">
+
+<!-- =========================================================
+     WELCOME OVERLAY
+========================================================= -->
+
+<div
+    id="welcomeOverlay"
+    class="welcome-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="welcomeTitle"
+>
+
+    <div class="welcome-backdrop"></div>
+
+    <div class="welcome-card">
+
+        <button
+            id="welcomeClose"
+            class="welcome-close"
+            type="button"
+            aria-label="Close welcome screen"
+        >
+            ×
+        </button>
+
+        <div class="welcome-content">
+
+            <div class="welcome-copy">
+
+                <div class="welcome-kicker">
+                    SPARK / RELIABILITY FRAMEWORK
+                </div>
+
+                <div class="welcome-mark">
+                    <span>◈</span>
+                    SPARK
+                </div>
+
+                <h1 id="welcomeTitle">
+                    Evidence before disposition.
+                </h1>
+
+                <p class="welcome-description">
+                    SPARK evaluates burn-in measurements through
+                    data-quality validation, engineering safety
+                    limits, lot-aware statistical analysis and
+                    predictive reliability evidence — giving QA
+                    a traceable basis for every disposition.
+                </p>
+
+                <div class="welcome-flow">
+
+                    <div class="welcome-stage">
+                        <span class="stage-number">01</span>
+                        <strong>DATA TRUST</strong>
+                        <small>Validate</small>
+                    </div>
+
+                    <div class="flow-line"></div>
+
+                    <div class="welcome-stage">
+                        <span class="stage-number">02</span>
+                        <strong>SAFETY</strong>
+                        <small>Protect</small>
+                    </div>
+
+                    <div class="flow-line"></div>
+
+                    <div class="welcome-stage">
+                        <span class="stage-number">03</span>
+                        <strong>RISK</strong>
+                        <small>Analyze</small>
+                    </div>
+
+                    <div class="flow-line"></div>
+
+                    <div class="welcome-stage">
+                        <span class="stage-number">04</span>
+                        <strong>QA</strong>
+                        <small>Decide</small>
+                    </div>
+
+                </div>
+
+                <button
+                    id="enterWorkspace"
+                    class="primary welcome-enter"
+                    type="button"
+                >
+                    ENTER WORKSPACE
+                    <span>→</span>
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 ENGINEERING VISUAL
+            ================================================= -->
+
+            <div class="welcome-visual">
+
+                <div class="visual-label">
+                    RELIABILITY EVIDENCE FLOW
+                </div>
+
+                <svg
+                    class="spark-visual"
+                    viewBox="0 0 620 480"
+                    role="img"
+                    aria-label="SPARK reliability evidence flow"
+                >
+
+                    <!-- Background technical grid -->
+                    <g class="svg-grid">
+
+                        <line x1="30" y1="70" x2="590" y2="70"/>
+                        <line x1="30" y1="140" x2="590" y2="140"/>
+                        <line x1="30" y1="210" x2="590" y2="210"/>
+                        <line x1="30" y1="280" x2="590" y2="280"/>
+                        <line x1="30" y1="350" x2="590" y2="350"/>
+                        <line x1="30" y1="420" x2="590" y2="420"/>
+
+                        <line x1="80" y1="35" x2="80" y2="445"/>
+                        <line x1="160" y1="35" x2="160" y2="445"/>
+                        <line x1="240" y1="35" x2="240" y2="445"/>
+                        <line x1="320" y1="35" x2="320" y2="445"/>
+                        <line x1="400" y1="35" x2="400" y2="445"/>
+                        <line x1="480" y1="35" x2="480" y2="445"/>
+                        <line x1="560" y1="35" x2="560" y2="445"/>
+
+                    </g>
+
+
+                    <!-- Main signal path -->
+                    <path
+                        class="signal-path"
+                        d="
+                            M55 355
+                            C105 330 125 270 170 290
+                            S225 350 270 260
+                            S330 135 370 185
+                            S425 285 465 220
+                            S515 105 565 125
+                        "
+                    />
+
+
+                    <!-- Safety boundary -->
+                    <path
+                        class="safety-line"
+                        d="M45 165 L575 165"
+                    />
+
+                    <text
+                        x="470"
+                        y="153"
+                        class="svg-small"
+                    >
+                        SAFETY LIMIT
+                    </text>
+
+
+                    <!-- 0h -->
+                    <g class="evidence-node">
+                        <circle cx="95" cy="335" r="16"/>
+                        <circle cx="95" cy="335" r="5"/>
+
+                        <text x="75" y="380">
+                            0h
+                        </text>
+                    </g>
+
+
+                    <!-- 24h -->
+                    <g class="evidence-node">
+                        <circle cx="225" cy="325" r="16"/>
+                        <circle cx="225" cy="325" r="5"/>
+
+                        <text x="201" y="370">
+                            24h
+                        </text>
+                    </g>
+
+
+                    <!-- 96h -->
+                    <g class="evidence-node">
+                        <circle cx="355" cy="185" r="16"/>
+                        <circle cx="355" cy="185" r="5"/>
+
+                        <text x="332" y="230">
+                            96h
+                        </text>
+                    </g>
+
+
+                    <!-- 168h -->
+                    <g class="evidence-node final-node">
+                        <circle cx="505" cy="170" r="20"/>
+                        <circle cx="505" cy="170" r="6"/>
+
+                        <text x="478" y="220">
+                            168h
+                        </text>
+                    </g>
+
+
+                    <!-- Central intelligence ring -->
+                    <g class="intelligence-ring">
+
+                        <circle
+                            cx="310"
+                            cy="95"
+                            r="44"
+                        />
+
+                        <circle
+                            cx="310"
+                            cy="95"
+                            r="28"
+                        />
+
+                        <path
+                            d="M288 95 L302 108 L333 75"
+                        />
+
+                    </g>
+
+
+                    <text
+                        x="255"
+                        y="25"
+                        class="svg-label"
+                    >
+                        DYNAMIC RISK
+                    </text>
+
+
+                    <!-- Decision nodes -->
+                    <g class="decision-node">
+
+                        <rect
+                            x="75"
+                            y="60"
+                            width="115"
+                            height="48"
+                            rx="8"
+                        />
+
+                        <text x="91" y="89">
+                            DATA TRUST
+                        </text>
+
+                    </g>
+
+
+                    <g class="decision-node">
+
+                        <rect
+                            x="430"
+                            y="315"
+                            width="115"
+                            height="48"
+                            rx="8"
+                        />
+
+                        <text x="455" y="344">
+                            QA ACTION
+                        </text>
+
+                    </g>
+
+
+                    <!-- Connecting paths -->
+                    <path
+                        class="connector"
+                        d="M190 84 L260 84"
+                    />
+
+                    <path
+                        class="connector"
+                        d="M354 110 L430 110"
+                    />
+
+                    <path
+                        class="connector"
+                        d="M430 110 L490 315"
+                    />
+
+                </svg>
+
+
+                <div class="visual-caption">
+                    <span></span>
+                    Measured behaviour → risk evidence → traceable QA action
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="welcome-footer">
+
+            <span>
+                ENGINEERING QUALITY INTELLIGENCE
+            </span>
+
+            <span>
+                DATA • SAFETY • RISK • QA • TRACEABILITY
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     APPLICATION HEADER
+========================================================= -->
+
+<header>
+
+    <div class="brand">
+
+        <b>◈ SPARK</b>
+
+        <small>
+            ENGINEERING QUALITY INTELLIGENCE
+        </small>
+
+    </div>
+
+
+    <div class="header-tools">
+
+        <span id="health">
+            CHECKING
+        </span>
+
+
+        <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            aria-label="Toggle theme"
+            aria-pressed="false"
+            title="Switch to Night mode"
+        >
+
+            <span class="theme-icon">
+                ◐
+            </span>
+
+            <span class="theme-label">
+                NIGHT
+            </span>
+
+            <span class="toggle-track">
+                <span class="toggle-thumb"></span>
+            </span>
+
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     MAIN APPLICATION
+========================================================= -->
+
+<div class="layout">
+
+
+    <!-- =====================================================
+         NAVIGATION
+    ===================================================== -->
+
+    <nav>
+
+        <div class="nav-label">
+            WORKSPACE
+        </div>
+
+        <button
+            data-view="overview"
+            class="active"
+        >
+            <span>01</span>
+            Overview
+        </button>
+
+        <button data-view="datasets">
+            <span>02</span>
+            Datasets
+        </button>
+
+        <button data-view="monitor">
+            <span>03</span>
+            Process Monitor
+        </button>
+
+        <button data-view="analysis">
+            <span>04</span>
+            Analysis
+        </button>
+
+        <button data-view="qa">
+            <span>05</span>
+            QA Inspector
+        </button>
+
+        <button data-view="history">
+            <span>06</span>
+            Decision History
+        </button>
+
+
+        <div class="nav-footer">
+
+            <div class="nav-status">
+                <span></span>
+                SYSTEM READY
+            </div>
+
+            <small>
+                SPARK RELIABILITY FRAMEWORK
+            </small>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ===================================================== -->
+
+    <main>
+
+
+        <!-- =================================================
+             OVERVIEW
+        ================================================= -->
+
+        <section
+            id="overview"
+            class="view active"
+        >
+
+            <div class="hero">
+
+                <div>
+
+                    <label>
+                        QUALITY WORKSPACE
+                    </label>
+
+                    <h1>
+                        Evidence before disposition.
+                    </h1>
+
+                    <p>
+                        Review measured behaviour, validated
+                        analytical evidence and inspector decisions
+                        through a controlled reliability workflow.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="begin"
+                    class="primary"
+                >
+                    Begin inspection
+                    <span>→</span>
+                </button>
+
+            </div>
+
+
+            <div
+                id="cards"
+                class="cards"
+            ></div>
+
+
+            <div class="two">
+
+                <div class="panel chart-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <b>
+                                PROCESS SNAPSHOT
+                            </b>
+
+                            <span>
+                                Signal variation
+                            </span>
+                        </div>
+
+                        <span class="panel-index">
+                            01
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="overviewPlot"
+                        class="plot"
+                    ></div>
+
+                </div>
+
+
+                <div class="panel chart-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <b>
+                                QUALITY SIGNALS
+                            </b>
+
+                            <span>
+                                Population summary
+                            </span>
+
+                        </div>
+
+                        <span class="panel-index">
+                            02
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="overviewTable"
+                    ></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             DATASETS
+        ================================================= -->
+
+        <section
+            id="datasets"
+            class="view"
+        >
+
+            <div class="heading">
+
+                <div>
+
+                    <label>
+                        DATA CONTROL
+                    </label>
+
+                    <h2>
+                        Datasets
+                    </h2>
+
+                    <p>
+                        Load, activate, compare or remove datasets
+                        without losing QA traceability.
+                    </p>
+
+                </div>
+
+
+                <label
+                    class="upload primary"
+                >
+
+                    Add dataset
+
+                    <input
+                        id="upload"
+                        type="file"
+                        accept=".csv,.xlsx,.xls"
+                    >
+
+                </label>
+
+            </div>
+
+
+            <div id="datasetList"></div>
+
+        </section>
+
+
+        <!-- =================================================
+             PROCESS MONITOR
+        ================================================= -->
+
+        <section
+            id="monitor"
+            class="view"
+        >
+
+            <div class="heading">
+
+                <div>
+
+                    <label>
+                        PROCESS BEHAVIOUR
+                    </label>
+
+                    <h2>
+                        Signal Monitor
+                    </h2>
+
+                    <p>
+                        Inspect observed signal behaviour against
+                        descriptive control boundaries.
+                    </p>
+
+                </div>
+
+
+                <select
+                    id="signalSelect"
+                ></select>
+
+            </div>
+
+
+            <div class="two">
+
+                <div class="panel chart-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <b>
+                                CONTROL BEHAVIOUR
+                            </b>
+
+                            <span>
+                                Observed signal trajectory
+                            </span>
+                        </div>
+
+                        <span class="panel-index">
+                            CONTROL
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="controlPlot"
+                        class="plot tall"
+                    ></div>
+
+                </div>
+
+
+                <div class="panel chart-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <b>
+                                POPULATION DISTRIBUTION
+                            </b>
+
+                            <span>
+                                Observed value distribution
+                            </span>
+                        </div>
+
+                        <span class="panel-index">
+                            DISTRIBUTION
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="histPlot"
+                        class="plot tall"
+                    ></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ANALYSIS
+        ================================================= -->
+
+        <section
+            id="analysis"
+            class="view"
+        >
+
+            <div class="heading">
+
+                <div>
+
+                    <label>
+                        ANALYTICAL EVIDENCE
+                    </label>
+
+                    <h2>
+                        Variation & relationships
+                    </h2>
+
+                    <p>
+                        Statistical views expose signal variation,
+                        population behaviour, outliers and
+                        cross-signal relationships.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="two">
+
+                <div class="panel chart-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <b>
+                                SIGNAL STABILITY
+                            </b>
+
+                            <span>
+                                Mean, deviation and outliers
+                            </span>
+                        </div>
+
+                        <span class="panel-index">
+                            01
+                        </span>
+
+                    </div>
+
+                    <div id="stability"></div>
+
+                </div>
+
+
+                <div class="panel chart-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <b>
+                                CROSS-SIGNAL RELATIONSHIPS
+                            </b>
+
+                            <span>
+                                Correlation structure
+                            </span>
+
+                        </div>
+
+                        <span class="panel-index">
+                            02
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="corrPlot"
+                        class="plot"
+                    ></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             QA INSPECTOR
+        ================================================= -->
+
+        <section
+            id="qa"
+            class="view"
+        >
+
+            <div class="heading">
+
+                <div>
+
+                    <label>
+                        QUALITY ASSURANCE
+                    </label>
+
+                    <h2>
+                        QA Inspector
+                    </h2>
+
+                    <p>
+                        Machine evidence is presented for review;
+                        final disposition remains with the inspector.
+                    </p>
+
+                </div>
+
+
+                <div class="record-nav">
+
+                    <button id="prev">
+                        ‹
+                    </button>
+
+                    <span id="record">
+                        Record —
+                    </span>
+
+                    <button id="next">
+                        ›
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="qa-grid">
+
+                <div class="panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <b>
+                                RECORD EVIDENCE
+                            </b>
+
+                            <span>
+                                Statistical evidence
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div id="evidence"></div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <b>
+                                AI / ANALYTICAL COMPARISON
+                            </b>
+
+                            <span>
+                                Decision-support evidence
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div id="comparisonPanel"></div>
+
+                    <div
+                        id="aiComment"
+                        class="ai-comment"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <div class="qa-grid lower">
+
+                <div class="panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <b>
+                                QA DISPOSITION
+                            </b>
+
+                            <span>
+                                Human decision
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div id="qaPanel"></div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <b>
+                                INSPECTOR RECORD
+                            </b>
+
+                            <span>
+                                Decision context
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div id="inspectorPanel"></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             DECISION HISTORY
+        ================================================= -->
+
+        <section
+            id="history"
+            class="view"
+        >
+
+            <div class="heading">
+
+                <div>
+
+                    <label>
+                        TRACEABILITY
+                    </label>
+
+                    <h2>
+                        Decision History
+                    </h2>
+
+                    <p>
+                        Recorded inspector actions and decision
+                        evidence for the active dataset.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="panel"
+            >
+
+                <div class="panel-heading">
+
+                    <div>
+                        <b>
+                            QA DECISION LEDGER
+                        </b>
+
+                        <span>
+                            Recorded dispositions
+                        </span>
+                    </div>
+
+                </div>
+
+                <div
+                    id="historyTable"
+                >
+                    No QA decisions recorded.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             TOAST
+        ================================================= -->
+
+        <div id="toast"></div>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     WELCOME + THEME UI BEHAVIOUR
+========================================================= -->
+
+<script>
+
+(function () {
+
+    const overlay =
+        document.getElementById("welcomeOverlay");
+
+    const close =
+        document.getElementById("welcomeClose");
+
+    const enter =
+        document.getElementById("enterWorkspace");
+
+
+    function closeWelcome() {
+
+        if (!overlay) return;
+
+        overlay.classList.add("closing");
+
+        setTimeout(function () {
+
+            overlay.classList.remove("closing");
+            overlay.classList.add("hidden");
+
+        }, 260);
+
+        try {
+            sessionStorage.setItem(
+                "spark-welcome-seen",
+                "1"
+            );
+        } catch (_) {}
+
+    }
+
+
+    if (close) {
+        close.addEventListener(
+            "click",
+            closeWelcome
+        );
+    }
+
+
+    if (enter) {
+        enter.addEventListener(
+            "click",
+            closeWelcome
+        );
+    }
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === overlay ||
+                    event.target.classList.contains(
+                        "welcome-backdrop"
+                    )
+                ) {
+                    closeWelcome();
+                }
+
+            }
+        );
+
+    }
+
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape" &&
+                overlay &&
+                !overlay.classList.contains("hidden")
+            ) {
+                closeWelcome();
+            }
+
+        }
+    );
+
+})();
+
+</script>
+
+
+<script src="/static/js/app.js?v=7.1.0"></script>
+
+</body>
+</html>
