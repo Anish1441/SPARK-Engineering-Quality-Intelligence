@@ -52,6 +52,17 @@ PORT = SETTINGS.port
 # ---------------------------------------------------------------------------
 
 app = Flask(__name__)
+
+@app.after_request
+def add_noindex_headers(response):
+    response.headers["X-Robots-Tag"] = "noindex, nofollow, noarchive"
+    return response
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    return "User-agent: *\nDisallow: /\n", 200, {"Content-Type": "text/plain"}
+
 app.config["MAX_CONTENT_LENGTH"] = 200 * 1024 * 1024
 
 dm = DatasetManager(

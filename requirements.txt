@@ -6,3 +6,4 @@ xlrd>=2.0,<3
 joblib>=1.4,<2
 scikit-learn==1.9.0
 pytest>=8,<10
+gunicorn>=23,<24
