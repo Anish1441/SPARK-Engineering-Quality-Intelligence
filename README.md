@@ -1,5 +1,15 @@
-# SPARK — Engineering Quality Intelligence
+# SPARK S.P.A.R.K. — Smart Predictive Anomaly & Reliability Knowledgebase
+Transforming Burn-In Data into Actionable Reliability Intelligence
+
+Smart → hybrid engineering + AI decision support
+Predictive → 168h forecasting from early burn-in checkpoints
+Anomaly → dynamic outlier and lot-aware detection
+Reliability → the core purpose of the system
+Knowledgebase → traceability, evidence, QA decisions, model/lot history
+
 https://spark-engineering-quality-intelligence.onrender.com/
+
+(The application might take up to 1min open due to inactivity)
 
 > **S.P.A.R.K. — Transforming Burn-In Data into Actionable Reliability Intelligence**
 > Smart India Hackathon 2026 · Problem Statement 26170 · Team VIKRITI
