@@ -1,325 +1,516 @@
 # SPARK — Engineering Quality Intelligence
 
-This repository contains the recovered and stabilized **Phase 7** SPARK dashboard for SIH26170: AI-Driven Anomaly Detection in Component Burn-In & Screening.
+> **S.P.A.R.K. — Transforming Burn-In Data into Actionable Reliability Intelligence**
+> Smart India Hackathon 2026 · Problem Statement 26170 · Team VIKRITI
+> Problem: **AI-Driven Anomaly Detection in Component Burn-In & Screening**
+> Organization: **Indian Space Research Organisation (ISRO), Department of Space**
 
-Phase 7 is a decision-support application around the validated original Phase-1 reliability pipeline. It does not fabricate ML output and it does not retrain or replace the original Phase-1 models during dashboard use.
+SPARK is an engineering decision-support platform for **high-reliability electronic component burn-in and screening**. It combines deterministic engineering safeguards, lot-aware anomaly detection, 168-hour leakage forecasting, model applicability checks, drift and calibration monitoring, population-level lot intelligence, explainable QA decisions, human override governance, and tamper-evident local traceability.
 
-## Current Phase 7 architecture
+SPARK is designed for the exact failure mode that static pass/fail screening can miss: a component can remain inside a datasheet limit yet still behave abnormally relative to its lot, historical population, or degradation trajectory.
+
+The current implementation is **Version 9.0.0** and preserves the validated original Phase-1 Module-A and Module-B artifacts rather than fabricating replacement ML outputs.
+
+---
+
+## Contents
+
+1. [Problem and motivation](#1-problem-and-motivation)
+2. [What SPARK does](#2-what-spark-does)
+3. [System principles](#3-system-principles)
+4. [End-to-end architecture](#4-end-to-end-architecture)
+5. [Decision path](#5-decision-path)
+6. [Dataset and schema contract](#6-dataset-and-schema-contract)
+7. [Module A — dynamic anomaly detection](#7-module-a--dynamic-anomaly-detection)
+8. [Module B — 168h drift forecast](#8-module-b--168h-drift-forecast)
+9. [Data Trust Gate](#9-data-trust-gate)
+10. [Engineering Safety Gate](#10-engineering-safety-gate)
+11. [Model Applicability / OOD Gate](#11-model-applicability--ood-gate)
+12. [Rolling 24h → 96h → 168h update](#12-rolling-24h--96h--168h-update)
+13. [Unified Reliability Risk Engine](#13-unified-reliability-risk-engine)
+14. [Deterministic explainability](#14-deterministic-explainability)
+15. [QA governance](#15-qa-governance)
+16. [Traceability ledger](#16-traceability-ledger)
+17. [Model registry](#17-model-registry)
+18. [Drift Observatory](#18-drift-observatory)
+19. [Calibration Monitor](#19-calibration-monitor)
+20. [Lot and batch intelligence](#20-lot-and-batch-intelligence)
+21. [Commonality Engine](#21-commonality-engine)
+22. [Governed feedback learning](#22-governed-feedback-learning)
+23. [UI workflow](#23-ui-workflow)
+24. [API reference](#24-api-reference)
+25. [Repository structure](#25-repository-structure)
+26. [Installation](#26-installation)
+27. [Running locally](#27-running-locally)
+28. [Testing](#28-testing)
+29. [Current validated reference metadata](#29-current-validated-reference-metadata)
+30. [Important engineering semantics](#30-important-engineering-semantics)
+31. [Known limitations](#31-known-limitations)
+32. [Deployment considerations](#32-deployment-considerations)
+33. [Research and industry context](#33-research-and-industry-context)
+34. [Demo flow](#34-demo-flow)
+35. [Roadmap](#35-roadmap)
+
+---
+
+# 1. Problem and motivation
+
+High-reliability sectors such as space, aerospace, automotive safety, medical systems, industrial control, defence, and power electronics use environmental stress screening and burn-in to expose latent defects before field deployment.
+
+Traditional screening commonly starts with static specification limits:
 
 ```text
-Browser (HTML/CSS/JavaScript + local Plotly)
-        |
-        v
-Flask app.py
-        |
-        +-- DatasetManager
-        |     +-- user CSV / Excel uploads
-        |     +-- bundled read-only demo dataset
-        |     +-- original Phase-1 clean measurements
-        |
-        +-- analysis_engine.py
-        |     +-- descriptive statistics
-        |     +-- generic MAD / robust-z evidence
-        |     +-- 3-sigma control limits
-        |     +-- correlations / signal profiles
-        |
-        +-- PipelineAdapter
-        |     +-- original build_feature_table()
-        |     +-- Module A: module_a_24h.joblib + score_module_a()
-        |     +-- Module B: module_b_24h.joblib + predict_module_b()
-        |     +-- one shared component feature table
-        |     +-- per-dataset Module-A/Module-B evidence cache
-        |
-        +-- Data Trust + Engineering Safety
-        |     +-- fail-closed evidence checks
-        |     +-- non-negotiable hard electrical limits
-        |
-        +-- Unified Reliability Risk Engine
-        |     +-- deterministic evidence precedence
-        |     +-- transparent QA prioritisation index
-        |     +-- evidence completeness score
-        |     +-- ACCEPT / WATCH / HOLD / RETEST / REJECT recommendation
-        |
-        +-- QAManager
-              +-- atomic local QA decision ledger
-              +-- guardrail + Module-A + Module-B evidence snapshot
-              +-- unified reliability recommendation snapshot
-              +-- explicit human final disposition
+Measurement <= datasheet maximum  -> PASS
+Measurement >  datasheet maximum  -> FAIL
 ```
 
-## Original Phase-1 contract
+That is necessary, but it is not always sufficient.
 
-Phase 7 directly loads the existing Phase-1 project. There is no `SPARK_PIPELINE_ENTRYPOINT` contract.
-
-The adapter expects the Phase-1 root to contain at minimum:
+Example:
 
 ```text
-src/sih26170/
+Datasheet leakage maximum = 50 µA
+Lot average                = 10 µA
+Component A                = 10 µA  -> expected
+Component B                = 45 µA  -> technically inside the limit
+```
+
+A purely static system may pass Component B. A reliability engineer, however, may reasonably ask why that device is behaving very differently from the rest of its population.
+
+SIH26170 therefore calls for two complementary capabilities:
+
+- **Module A — dynamic outlier detection:** identify abnormal components relative to lot/population behavior, not only absolute limits.
+- **Module B — drift prediction:** use early burn-in measurements such as 0h and 24h to forecast later behavior such as 168h.
+
+SPARK extends those two core modules with trustworthy decision infrastructure around them.
+
+---
+
+# 2. What SPARK does
+
+SPARK currently provides these implemented capability groups.
+
+| Layer | Capability | Purpose |
+|---|---|---|
+| Data | Dataset Manager | Upload, activate, inspect, and compare CSV/Excel datasets |
+| Trust | Data Trust Gate | Verify early evidence quality before using it for screening |
+| Safety | Engineering Safety Gate | Enforce non-negotiable electrical limits |
+| Applicability | Model Applicability / OOD Gate | Decide whether Module-B evidence should be trusted for the current component |
+| ML | Module A | Lot-aware / historical dynamic anomaly evidence |
+| ML | Module B | 168h leakage forecast from early evidence |
+| Update | Rolling 96h Engineering Update | Reassess trajectory when 96h observation becomes available |
+| Fusion | Reliability Risk Engine | Combine trustworthy evidence into a deterministic QA recommendation |
+| Explanation | Reason-Code Engine | Explain why the recommendation was generated |
+| Human review | QA Governance | Control agreement, notes, overrides, and mandatory override justification |
+| Traceability | Hash-Sealed QA Ledger | Persist assessment and human decisions with local integrity checks |
+| Lifecycle | Model Registry | Track schema/model contracts and artifact hashes |
+| Monitoring | Drift Observatory | Compare current population behavior with reference data |
+| Monitoring | Calibration Monitor | Check prediction interval coverage using evaluation truth |
+| Population | Lot / Batch Health | Summarize escalation and anomaly behavior by lot and batch |
+| Population | Commonality Engine | Identify attributes enriched among risky components |
+| Learning governance | Feedback Learning | Convert governed QA disagreement history into offline review candidates |
+
+---
+
+# 3. System principles
+
+SPARK is intentionally built around a few hard rules.
+
+### 3.1 Engineering safety outranks ML
+
+A measured hard electrical limit failure cannot be softened into an ACCEPT decision by an anomaly model or forecast.
+
+### 3.2 Bad data cannot become a confident decision
+
+Missing 0h/24h evidence, unusable measurements, or incompatible conditions must result in RETEST/HOLD rather than silent model execution.
+
+### 3.3 A model must be applicable before it is trusted
+
+The presence of a `.joblib` artifact is not enough. SPARK checks schema, checkpoints, and robust population similarity before authorizing Module-B evidence.
+
+### 3.4 Model output is evidence, not authority
+
+SPARK produces a machine recommendation. Final disposition remains a governed QA action.
+
+### 3.5 No silent self-learning
+
+QA feedback can create review candidates, but SPARK does **not** automatically retrain models, change thresholds, recalibrate production behavior, or promote a new artifact.
+
+### 3.6 Traceability must survive model evolution
+
+Dataset, schema, feature-set, model, validation, inference, explanation, human decision, and ledger evidence are kept conceptually separate.
+
+---
+
+# 4. End-to-end architecture
+
+```mermaid
+flowchart TD
+    A[Burn-In / ESS Measurements] --> B[Dataset Manager]
+    B --> C[Model Applicability / OOD Gate]
+    C -->|Unsupported / OOD| C1[ABSTAIN / Engineering Review]
+    C -->|Supported| D[Data Trust Gate]
+    D -->|Missing / unusable evidence| D1[RETEST / HOLD]
+    D -->|Pass| E[Engineering Safety Gate]
+    E -->|Hard limit breach| E1[REJECT]
+    E -->|Pass| F[Original Module A]
+    E -->|Pass| G[Original Module B]
+    G --> H[96h Engineering Trajectory Update]
+    F --> I[Unified Reliability Risk Engine]
+    G --> I
+    H --> I
+    I --> J[Deterministic Explainability]
+    J --> K[QA Governance]
+    K --> L[Hash-Sealed Evidence Ledger]
+    L --> M[Feedback Review Candidates]
+```
+
+The population-intelligence layer surrounds the component-level decision path:
+
+```mermaid
+flowchart LR
+    A[Model Registry] --> B[Model Health]
+    C[Applicability / OOD] --> B
+    D[Drift Observatory] --> B
+    E[Calibration Monitor] --> B
+
+    F[Module A Population Evidence] --> G[Lot / Batch Health]
+    F --> H[Commonality Engine]
+    I[QA Ledger] --> G
+    I --> J[Governed Feedback Learning]
+```
+
+---
+
+# 5. Decision path
+
+The component-level decision path is deterministic in its guardrail precedence.
+
+```text
+1. Model applicability
+2. Data Trust
+3. Engineering Safety
+4. Module A dynamic anomaly evidence
+5. Module B forecast evidence
+6. Reliability Risk Engine
+7. Explainability
+8. Human QA governance
+9. Traceability ledger
+```
+
+A simplified precedence view:
+
+```text
+SCHEMA / OOD FAILURE
+    -> ABSTAIN / REVIEW
+
+MISSING OR UNUSABLE EARLY EVIDENCE
+    -> RETEST / HOLD
+
+OBSERVED HARD ELECTRICAL FAILURE
+    -> REJECT
+
+MODULE A ABNORMALITY
+    -> WATCH / HOLD / RETEST / REJECT as applicable
+
+MODULE B CONSERVATIVE FORECAST REACHES LIMIT
+    -> HOLD
+
+GUARDRAILS PASS + NO MATERIAL ESCALATION
+    -> ACCEPT
+```
+
+---
+
+# 6. Dataset and schema contract
+
+The reference burn-in dataset is long-form: one component can have several measurement rows at different burn-in times.
+
+Current checkpoints:
+
+```text
+0h
+24h
+96h
+168h
+```
+
+The current clean long-form reference dataset uses fields including:
+
+```text
+measurement_id
+component_id
+lot_id
+burnin_batch_id
+dataset_split
+part_number
+qualification_level
+parameter_name
+measurement_time_h
+leakage_current_uA
+nominal_temperature_c
+recorded_temperature_c
+reverse_voltage_v
+stress_temperature_c
+stress_reverse_bias_v
+datasheet_upper_limit_uA
+instrument_id
+raw_row_count
+duplicate_count
+source_quality_issues
+quality_status
+cleaning_actions
+missing_value_flag
+condition_mismatch_flag
+usable_for_ml
+```
+
+At minimum, Phase 8's base schema contract requires:
+
+```text
+component_id
+measurement_time_h
+leakage_current_uA
+```
+
+The schema registry computes a SHA-256 fingerprint from sorted column names and pandas dtypes. This fingerprint identifies the **schema contract**, not the dataset contents.
+
+### Schema evolution policy
+
+SPARK does **not** automatically treat every new column as an ML feature.
+
+The intended evolution path is:
+
+```text
+New parameter
+    ↓
+Schema validation
+    ↓
+Engineering relevance
+    ↓
+Data quality / missingness
+    ↓
+Availability at prediction time
+    ↓
+Leakage check
+    ↓
+Candidate feature engineering
+    ↓
+Cross-validation / robustness
+    ↓
+Baseline-vs-candidate comparison
+    ↓
+Engineering review
+    ↓
+New versioned feature set / model
+```
+
+This preserves reproducibility and prevents silent feature drift.
+
+---
+
+# 7. Module A — dynamic anomaly detection
+
+SPARK loads the **original Phase-1 Module-A artifact and scoring implementation**.
+
+Artifact:
+
+```text
 artifacts/models/module_a_24h.joblib
-artifacts/models/module_b_24h.joblib
-data/processed/02_clean_measurements_long.csv
 ```
 
-The original Module-A artifact contract is:
+Artifact contract:
 
 ```python
 {"model": model, "metadata": model_metadata(model)}
 ```
 
-The original Module-B artifact contract is:
+Current metadata identifies the algorithm as:
+
+```text
+Lot MAD
++ historical baseline
++ batch early-slope behavior
++ Isolation Forest
+```
+
+The 24-hour feature set includes early electrical behavior, within-lot robust statistics, historical robust statistics, lot shift, quality evidence, and missing/condition information.
+
+Representative Module-A evidence exposed by SPARK:
+
+```text
+ir_0h_uA
+ir_24h_uA
+within_lot_risk_score
+historical_risk_score
+lot_shift_risk_score
+batch_median_slope_0_24
+batch_slope_shift_score
+isolation_forest_raw_score
+isolation_forest_is_outlier
+static_limit_failed_at_24h
+module_a_action
+module_a_primary_reason
+```
+
+Current Module-A action vocabulary includes:
+
+```text
+ACCEPT
+WATCH
+HOLD_FOR_REVIEW
+RETEST
+REJECT
+```
+
+The current reference Module-A metadata records:
+
+```text
+time_cutoff_h = 24
+uses_ground_truth_labels = False
+```
+
+SPARK therefore keeps the early anomaly screen time-safe through 24h.
+
+---
+
+# 8. Module B — 168h drift forecast
+
+SPARK also loads the **original Phase-1 Module-B trained pipeline**.
+
+Artifact:
+
+```text
+artifacts/models/module_b_24h.joblib
+```
+
+Artifact contract:
 
 ```python
 {"bundle": bundle, "metadata": metadata}
 ```
 
-Phase 7 automatically checks these historical locations when `SPARK_PIPELINE_ROOT` is not set:
+Current reference metadata:
 
 ```text
-<parent of Phase7>/SPARK_PHASE1
-%USERPROFILE%\Desktop\SPARK_PHASE1
-%USERPROFILE%\Downloads\SPARK_PHASE1
-%USERPROFILE%\Downloads\SIH26170_Prototype_Phase1\sih26170_prototype
-%USERPROFILE%\OneDrive\Desktop\SPARK_PHASE1
+Prediction time: 24h
+Forecast target: 168h leakage
+Target field: ir_168h_uA
+Selected model: median_ensemble
+Quantiles: 0.05, 0.50, 0.95
+Safety residual quantile: 0.995
+Uses 96h or 168h as input: False
+Uses hidden truth labels: False
 ```
 
-For an explicit location:
-
-```bat
-set SPARK_PIPELINE_ROOT=C:\path\to\SPARK_PHASE1
-```
-
-A bad configured path is reported instead of silently substituting another source.
-
-
-
-
-
-## Phase 7 final handoff status
-
-Phase 7 is functionally complete through QA override governance. The validated end-to-end stack now includes Data Trust, Engineering Safety, original Phase-1 Module A and Module B inference, the Unified Reliability Risk Engine, deterministic explainability, hash-sealed QA traceability, and governed human overrides.
-
-The closure criterion is a clean regression run, clean Git staging review, and successful push of the final Phase-7 source. Runtime QA records under `data/`, local virtual environments, caches, and obsolete `.bak` files are not part of the source handoff.
-
-### Final closure commands
-
-```bat
-python -m compileall -q app.py core tests
-node --check static\js\app.js
-python -m pytest -q
-git diff --check
-git status
-```
-
-### Final demo path
-
-Use the original Phase-1 dataset and demonstrate, in order: Data Trust -> Engineering Safety -> Unified Reliability Risk -> Explainable QA Decision -> Module A -> Module B -> human QA disposition -> Decision History / integrity -> QA feedback summary.
-
-Do not describe the reliability score as a failure probability, the Data Trust percentage as ML confidence, or the local SHA-256 ledger as a digital signature/blockchain.
-
-## Phase 7.6 — QA Override Governance + Feedback Ledger
-
-Phase 7.6 hardens the human-in-the-loop boundary. `AGREE` and `NOTE` may no longer silently change the deterministic SPARK recommendation; any different final disposition must use `OVERRIDE`. Overrides require a controlled reason code and a minimum 20-character justification. Hard engineering failures remain locked to `REJECT`/`QUARANTINE`, and Data Trust `RETEST` evidence cannot be relaxed to `ACCEPT`.
-
-Every schema-v7 QA entry records the machine recommendation, human-selected/final action, disagreement classification, override reason code/category, review target and justification. Disagreements are categorized as `AGREEMENT`, `CONSERVATIVE_OVERRIDE`, `RELAXATION_OVERRIDE`, `PROCESS_DISAGREEMENT`, or `UNCLASSIFIED_DISAGREEMENT`. The special reason `QA-OVR-006` flags suspected model/threshold limitations for later engineering review.
-
-The `/api/qa/<dataset_id>/feedback-summary` endpoint aggregates governed decisions, override rate, disagreement classes, action transitions, reason-code counts and model/threshold review flags. This ledger is evidence for future offline threshold/model review; it does not automatically retrain models or perform online learning.
-
-## Phase 7.5 — Explainable QA Decision + Traceability Hardening
-
-Phase 7.5 adds a deterministic explanation layer and a tamper-evident local QA ledger without changing the underlying Module-A, Module-B, Data Trust, Engineering Safety or Unified Reliability Risk decisions.
-
-The explanation layer generates a ranked reason-code hierarchy such as `DT-RETEST-001`, `ES-FAIL-001`, `MA-WATCH-001` and `MB-HOLD-001`, plus a five-step decision path from Data Trust through the Reliability Risk Engine. The layer is rule-based and explicitly reports `uses_llm: false`; it translates existing evidence but does not create or alter the recommendation.
-
-The QA ledger is upgraded to schema v6. Every new entry stores an SHA-256 evidence fingerprint, an SHA-256 entry hash, and the hash of the full prior ledger prefix. The `/api/qa/<dataset_id>/integrity` endpoint verifies those controls. This is a local integrity mechanism for detecting ledger edits; it is not a digital signature, external timestamp, or immutable database. Existing schema-v5 history remains readable and is reported as legacy/unsealed until a v6 entry seals the preceding ledger prefix.
-
-The QA Inspector now shows the primary reason code, ranked supporting reasons, and the deterministic decision path. Decision History shows ledger-integrity status, primary reason code and a short entry-hash reference for each v6 disposition.
-
-## Phase 7.4 — Unified Reliability Risk Engine
-
-Phase 7.4 combines the already-separated evidence layers into one deterministic QA recommendation without allowing a model to overrule a safety or data-quality gate. Decision precedence is:
-
-1. unusable/missing 0h/24h evidence → `RETEST` or `HOLD`;
-2. observed hard engineering-limit breach → `REJECT`;
-3. unavailable engineering-limit evidence → `HOLD`;
-4. original Module-A action (`ACCEPT`, `WATCH`, `HOLD_FOR_REVIEW`, `RETEST`, `REJECT`);
-5. original Module-B forecast and conservative uncertainty bounds versus the documented engineering limit.
-
-The **Reliability Risk Score (0–100)** is a transparent prioritisation index, not a probability of failure. It takes the stronger of the Module-A action severity and the Module-B 95% forecast utilisation of the engineering limit. Hard observed failures are fixed at 100. When required evidence is insufficient, no numerical reliability score is asserted and the risk band is `INDETERMINATE`.
-
-The **Evidence Completeness Score** is also transparent: it averages the Data Trust percentage with binary availability of Engineering Safety, Module A and Module B evidence. It is not model confidence.
-
-The QA Inspector now shows the unified recommendation, risk band, prioritisation score, evidence completeness and forecast/limit utilisation, while preserving the underlying guardrails and both original Phase-1 model outputs separately.
-
-## Phase 7.3 — Data Trust and Engineering Safety gates
-
-Phase 7.3 adds two deterministic guardrails ahead of model interpretation:
-
-- **Data Trust Gate** — verifies that 0h/24h checkpoints, finite leakage values, ML usability, missing-value flags, condition comparability and quality status are suitable for screening. The displayed confidence score is simply the percentage of applicable checks that pass; it is not an ML probability. Required evidence failures produce `RETEST`.
-- **Engineering Safety Gate** — compares observed early leakage values against the documented per-row `datasheet_upper_limit_uA`. A measured hard-limit breach produces `FAIL / REJECT`; Module A or Module B can never override it. Missing engineering-limit evidence produces `UNAVAILABLE / HOLD` rather than a silent pass.
-
-Both gates are intentionally time-safe through 24h for the early screening view and are persisted in the QA evidence ledger.
-
-## Module A — dynamic anomaly evidence
-
-Phase 7.3 retains the original Phase-1 Module-A model and scoring function directly. The dashboard does **not** implement a replacement anomaly algorithm.
-
-The original 24-hour Module-A evidence includes:
-
-- 0h and 24h leakage values;
-- within-lot robust risk;
-- historical healthy-population risk;
-- lot-shift risk;
-- burn-in-batch early-slope shift;
-- Isolation Forest score and outlier flag;
-- the Phase-1 hard-limit result available in the Module-A output;
-- original Module-A action and explanation.
-
-The original Phase-1 implementation is time-safe: the 24-hour screen is based on evidence available through 24h and does not train on hidden defect labels or future 96h/168h measurements.
-
-## Module B — 168-hour forecast evidence
-
-The dashboard continues to use the original Phase-1 Module-B model. It presents:
-
-- selected regression model;
-- predicted 168h leakage;
-- lower, median and upper prediction interval;
-- prediction interval width;
-- predicted 24h→168h slope;
-- safety margin / conformal upper evidence;
-- actual 168h and absolute error when the Phase-1 evaluation output supplies them.
-
-## Important dependency reproducibility
-
-The Phase-1 model artifacts were serialized with **scikit-learn 1.9.0**. Phase 7 therefore pins:
+The current reference ensemble uses:
 
 ```text
-scikit-learn==1.9.0
+linear_extrapolation
+Huber regression
+Histogram Gradient Boosting
 ```
 
-This avoids cross-version model-unpickling warnings and keeps inference consistent with the training environment.
+and keeps Extra Trees as a benchmark candidate in artifact metadata.
 
-## Phase 7 stabilization and integration fixes
-
-The recovered code now includes:
-
-- centralized Phase-1 path resolution;
-- exact scikit-learn model-runtime version pin;
-- required `joblib`, `scikit-learn` and `xlrd` dependencies;
-- direct original Module-A and Module-B integration;
-- shared feature engineering so both models use the same original component feature table;
-- per-dataset caching of feature engineering and both model outputs;
-- component-level QA navigation for long-form burn-in data, preferring the 24h representative row;
-- QA history persistence of Data Trust, Engineering Safety, Module-A and complete Module-B evidence snapshots;
-- QA ledger deletion when a user-uploaded dataset is explicitly removed;
-- read-only protection for the original Phase-1 dataset and bundled demo dataset;
-- bundled demo data under tracked `samples/` instead of runtime `data/`;
-- source-row-correct outlier indices when missing values are present;
-- explicit `ABSTAIN` QA disposition;
-- local Plotly for offline demonstrations;
-- pytest skip semantics when the external Phase-1 project is genuinely unavailable.
-
-## Clean installation on Windows
-
-From the repository root:
-
-```bat
-py -3.13 -m venv .venv
-call .venv\Scripts\activate.bat
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python -m pytest -q
-python app.py
-```
-
-Or, after the environment has been installed:
-
-```bat
-run_phase7.bat
-```
-
-The browser opens at `http://127.0.0.1:5000` unless `SPARK_HOST` or `SPARK_PORT` is configured.
-
-## Verify the original pipeline
-
-```bat
-python -c "from core.config import load_settings; print(load_settings().pipeline_root)"
-```
-
-Dual-module status:
-
-```bat
-python -c "from core.config import load_settings; from core.pipeline_adapter import PipelineAdapter; import pprint; pprint.pp(PipelineAdapter(load_settings().pipeline_root).status())"
-```
-
-For complete Module-A + Module-B integration, status should show both:
+SPARK exposes:
 
 ```text
-module_a_available: True
-module_b_available: True
+predicted_ir_168h_uA
+prediction_lower_05_uA
+prediction_median_50_uA
+prediction_upper_95_uA
+prediction_interval_width_uA
+predicted_slope_24_168_uA_per_h
+safety_margin_uA
+conformal_safety_upper_uA
 ```
 
-The same status is available while the app is running from:
+When evaluation data contains 168h truth, SPARK may also display:
 
 ```text
-GET /api/pipeline/status
+actual_ir_168h_uA
+absolute_prediction_error_uA
 ```
 
-## Dataset behavior
+Those fields are explicitly **evaluation-only** and are not used as 24h inference inputs.
 
-- User uploads are stored under runtime `data/` and ignored by Git.
-- The bundled demo dataset is under tracked `samples/` and is read-only.
-- The original Phase-1 clean measurements are referenced directly and are read-only.
-- Deleting a user-uploaded dataset removes its local QA ledger and invalidates its model cache.
+---
 
-## QA workflow
+# 9. Data Trust Gate
 
-Each inspection can persist:
+`core/gates.py` evaluates whether early evidence is suitable for screening.
 
-- inspection/source-row and component context;
-- generic analytical score/state and contributors;
-- Data Trust Gate status, score, checks and snapshot;
-- Engineering Safety Gate status, hard-failure evidence and margin snapshot;
-- Module-A availability, action, primary reason and risk evidence;
-- Module-A Isolation Forest and early static-limit evidence;
-- Module-B availability and selected model;
-- 168h prediction and prediction interval;
-- predicted 24h→168h slope;
-- safety margin / conformal upper value;
-- evaluation actual/error fields when supplied;
-- complete model/evidence snapshot;
-- QA action, response, override and comment;
-- UTC timestamp and final action.
+Checks can include:
 
-All statistical and model outputs are decision-support evidence. The final disposition remains explicit and human-controlled.
+- presence of 0h and 24h checkpoints;
+- at least two finite early leakage values;
+- `usable_for_ml` status;
+- missing-value flags;
+- condition comparability;
+- `quality_status`.
 
-## Safety and data handling
+The displayed Data Trust score is simply:
 
-Runtime datasets, QA ledgers, virtual environments, secrets, logs, caches and backup files are excluded from Git. The original Phase-1 dataset and trained models are referenced in place and are not copied into this repository.
+```text
+passed applicable checks / total applicable checks × 100
+```
 
-## Phase 8 — Trustworthy Model Lifecycle
+It is **not ML confidence** and it is **not component reliability probability**.
 
-Phase 8 extends the stable Phase-7 decision stack without replacing the original Phase-1 models. It adds four controlled capabilities:
+Typical outputs:
 
-1. **Schema / Feature / Model Registry** — exposes dataset schema fingerprint, production model identity, feature contract, required checkpoints, artifact SHA-256, and discovered-but-not-promoted 96h artifacts.
-2. **Model Applicability / OOD Gate** — checks schema, required 0h/24h evidence, and robust distance from the Phase-1 training reference before Module-B evidence is authorized for the reliability decision. Missing/incompatible/OOD evidence fails closed to abstention/review.
-3. **Drift Observatory** — compares the current population against the training/historical reference using robust checkpoint median shift and ML-usability-rate change. The dashboard recomputes this snapshot whenever Model Health is loaded; it does not claim a background streaming monitor.
-4. **Rolling 24h → 96h → 168h Update** — keeps the original trained 24h Module-B forecast intact and, when 96h evidence exists, adds a transparent linear engineering trajectory update. The 96h update is explicitly **not represented as a trained ML model** unless a validated 96h artifact is integrated later.
+```text
+PASS      -> CONTINUE
+HOLD      -> review non-critical quality issue
+RETEST    -> required evidence is missing or unusable
+```
 
-### Phase-8 Model Health tab
+---
 
-The new **Model Health** workspace shows:
+# 10. Engineering Safety Gate
 
-- production model registry and artifact fingerprints;
-- schema contract status;
-- model-applicability counts and review examples;
-- robust population-drift snapshot;
-- whether a `module_b_96h.joblib` artifact is merely discovered.
+The Engineering Safety Gate is independent of Module A and Module B.
 
-Phase 8 never automatically promotes a newly discovered model artifact. Promotion remains a controlled engineering/model-governance action.
+For early measurements through 24h it compares:
 
-### Applicability safety semantics
+```text
+leakage_current_uA
+vs
+datasheet_upper_limit_uA
+```
 
-The applicability gate returns one of:
+Behavior:
+
+```text
+Observed value <= documented limit
+    -> PASS / CONTINUE
+
+Observed value > documented limit
+    -> FAIL / REJECT
+
+Engineering-limit evidence unavailable
+    -> UNAVAILABLE / HOLD
+```
+
+ML evidence can never override a hard observed failure.
+
+---
+
+# 11. Model Applicability / OOD Gate
+
+`core/applicability.py` answers a different question from prediction:
+
+> **Should the current Module-B model be trusted for this component at all?**
+
+The gate checks:
+
+- required schema fields;
+- required 0h/24h checkpoints;
+- early finite values;
+- similarity to a training/reference population using robust median/MAD distance.
+
+Current states:
 
 ```text
 SUPPORTED
@@ -330,81 +521,1158 @@ INSUFFICIENT_EVIDENCE
 MODEL_NOT_APPLICABLE
 ```
 
-Schema/checkpoint incompatibility and strong OOD evidence cause Module-B output to be withheld from the reliability decision. The raw original result may remain available internally as diagnostic evidence, but the decision-facing Module-B result is marked unavailable/abstained.
-
-The population-distance screen is a transparent MAD-based reference check. It is a model-applicability guardrail, not a calibrated probability.
-
-### Rolling update semantics
-
-The 24h forecast remains the original trained Module-B prediction. If 96h leakage is available, SPARK computes:
+Default robust-distance thresholds:
 
 ```text
-observed slope 24h→96h
-        ↓
-linear engineering projection to 168h
-        ↓
-compare against original 24h ML forecast
-        ↓
-IMPROVING / STABLE / DETERIORATING
+caution = 4.0 robust sigma
+abstain = 6.0 robust sigma
 ```
 
-The update is shown separately in QA Inspector and is persisted inside the existing governed `model_snapshot` evidence record. It does not silently alter or retrain Module B.
-
-### Phase-8 verification
-
-```bat
-python -m compileall -q app.py core tests
-node --check static\js\app.js
-python -m pytest -q
-python app.py
-```
-
-Then verify:
+The gate exposes:
 
 ```text
-GET /api/datasets/<dataset_id>/model-health
-GET /api/datasets/<dataset_id>/inspection/0/assessment
+checkpoint_values_uA
+population_similarity
+robust_distance_by_checkpoint
+max_robust_distance
+uses_future_measurements
 ```
 
-The first endpoint should expose `registry`, `applicability`, `drift`, and `pipeline`. The assessment endpoint should additionally expose `model_applicability` and `rolling_forecast`.
+The current early applicability screen explicitly reports:
+
+```text
+uses_future_measurements = False
+```
+
+When Module-B evidence is not authorized, SPARK can retain diagnostic information internally but prevents that forecast from acting as normal decision-facing evidence.
 
 ---
 
-## Phase 9 — Population Intelligence & Controlled Learning
+# 12. Rolling 24h → 96h → 168h update
 
-Phase 9 is the final major feature-expansion phase. It preserves the Phase-7/8 decision core and adds population-level intelligence around it.
+The production trained forecast remains the original 24h Module-B model.
 
-### Added capabilities
+When a real 96h measurement becomes available, SPARK adds a **transparent engineering trajectory update**:
 
-1. **Lot / Batch Health Intelligence**
-   - Aggregates existing early-life Module-A evidence by lot and batch.
-   - Shows escalated/reject rates, robust-z outlier rate, medians, slope, and QA override context.
-   - Health states are transparent prioritisation heuristics, not failure probabilities.
+```text
+24h observed value
+96h observed value
+    ↓
+observed 24h→96h slope
+    ↓
+linear engineering projection to 168h
+    ↓
+compare with original 24h ML forecast
+```
 
-2. **Commonality Engine**
-   - Finds attributes enriched in the escalated population (lot, batch, instrument, part/family context where available).
-   - Compares risky vs reference feature medians.
-   - Explicitly reports association only; no causal claim is made.
+Possible trajectory labels:
 
-3. **Calibration Monitor**
-   - Backtests central 90% Module-B interval coverage and the one-sided safety upper bound using evaluation-only 168h truth.
-   - Can request recalibration review, but never changes model calibration automatically.
+```text
+IMPROVING
+STABLE
+DETERIORATING
+```
 
-4. **Governed QA Feedback Learning**
-   - Converts schema-v7 governed QA overrides into an offline engineering-review queue.
-   - Detects recurring model/threshold review flags, override reasons, and machine→human transitions.
-   - No automatic retraining and no automatic threshold modification.
+Important:
 
-### UI
+```text
+is_trained_96h_ml_model = False
+```
 
-- New **Lot Intelligence** tab.
-- **Calibration Monitor** added to Model Health.
-- **Governed Feedback Learning** review queue added to Decision History.
+SPARK does not falsely represent this engineering projection as a trained 96h model.
 
-### Important scientific boundaries
+If a future `module_b_96h.joblib` artifact is detected, the Model Registry marks it:
 
-- Commonality ≠ causality.
-- Population health ≠ probability of failure.
-- Calibration monitoring ≠ automatic recalibration.
-- QA feedback learning ≠ online self-training.
-- Existing Data Trust, Engineering Safety, Applicability, Module-A, Module-B, risk, explainability and governance controls remain authoritative.
+```text
+DISCOVERED_NOT_ACTIVATED
+```
+
+until its training and validation contract is reviewed.
+
+---
+
+# 13. Unified Reliability Risk Engine
+
+`core/risk_engine.py` fuses already-validated evidence into one deterministic machine recommendation.
+
+The returned **Reliability Risk Score (0–100)** is a QA prioritization index.
+
+It is **not** a calibrated probability that the component will fail.
+
+The engine applies guardrail precedence first and only then interprets Module-A/Module-B evidence.
+
+Representative output:
+
+```text
+reliability_risk_score
+risk_band
+evidence_completeness_pct
+unified_action
+reason
+safety_override
+forecast_limit_utilization_pct
+contributors
+score_is_probability = False
+```
+
+Risk bands can include:
+
+```text
+LOW
+ELEVATED
+HIGH
+CRITICAL
+INDETERMINATE
+```
+
+If required evidence is inadequate, SPARK can deliberately return:
+
+```text
+reliability_risk_score = None
+risk_band = INDETERMINATE
+```
+
+rather than inventing confidence.
+
+---
+
+# 14. Deterministic explainability
+
+`core/explainability.py` converts existing evidence into ranked reason codes and an auditable decision path.
+
+It is rule-based:
+
+```text
+deterministic = True
+uses_llm = False
+```
+
+Examples:
+
+```text
+DT-RETEST-001   Required early evidence incomplete / unusable
+ES-FAIL-001     Observed electrical limit breach
+MA-WATCH-001    Dynamic anomaly detected
+MB-HOLD-001     Conservative forecast reaches engineering limit
+```
+
+The explanation layer can return:
+
+```text
+recommended_action
+primary_reason_code
+primary_reason
+primary_reason_title
+reason_codes[]
+decision_path[]
+evidence_summary
+```
+
+It explains the recommendation; it does not create or alter model evidence.
+
+---
+
+# 15. QA governance
+
+`core/governance.py` controls how a human QA reviewer interacts with the machine recommendation.
+
+Review responses:
+
+```text
+AGREE
+NOTE
+OVERRIDE
+```
+
+Rules:
+
+- `AGREE` / `NOTE` cannot silently change the machine recommendation.
+- A different final disposition must use `OVERRIDE`.
+- Overrides require a controlled reason code.
+- Override justification must contain at least 20 characters.
+- Hard engineering failures cannot be relaxed below `REJECT` / `QUARANTINE`.
+- Data Trust `RETEST` cannot be overridden to `ACCEPT`.
+
+Disagreement classes:
+
+```text
+AGREEMENT
+CONSERVATIVE_OVERRIDE
+RELAXATION_OVERRIDE
+PROCESS_DISAGREEMENT
+UNCLASSIFIED_DISAGREEMENT
+```
+
+Controlled override codes include:
+
+```text
+QA-OVR-001  Verified measurement context
+QA-OVR-002  Tester or instrument evidence
+QA-OVR-003  Verified component history
+QA-OVR-004  Approved engineering review
+QA-OVR-005  Controlled procedure requirement
+QA-OVR-006  Suspected model or threshold limitation
+QA-OVR-007  Other controlled exception
+```
+
+`QA-OVR-006` specifically raises a model/threshold review flag.
+
+---
+
+# 16. Traceability ledger
+
+`core/qa_manager.py` stores local QA decisions under:
+
+```text
+data/qa/<dataset_id>.json
+```
+
+New governed records can persist:
+
+```text
+component identity
+lot / batch context
+machine recommendation
+human selected action
+final action
+disagreement class
+override reason / justification
+Data Trust snapshot
+Engineering Safety snapshot
+Module-A evidence
+Module-B evidence
+Model Applicability snapshot
+Rolling Forecast snapshot
+Risk Engine snapshot
+Explanation snapshot
+QA comment / timestamp
+```
+
+Integrity controls use SHA-256 fields such as:
+
+```text
+evidence_fingerprint
+prior_ledger_hash
+entry_hash
+```
+
+The ledger supports verification through:
+
+```text
+GET /api/qa/<dataset_id>/integrity
+```
+
+This is a **local tamper-evident integrity mechanism**.
+
+It is **not**:
+
+- blockchain;
+- a cryptographic digital signature;
+- an external timestamp authority;
+- an immutable database.
+
+Legacy historical entries remain readable and are explicitly reported as legacy/unsealed rather than rewritten.
+
+---
+
+# 17. Model registry
+
+`core/model_registry.py` builds a read-only model lifecycle view.
+
+Each model entry can include:
+
+```text
+module
+model_id
+status
+artifact path
+artifact existence
+artifact SHA-256
+prediction cutoff
+required checkpoints
+target
+feature set
+metadata
+```
+
+Current model identities:
+
+```text
+MODULE-A-24H-v1
+MODULE-B-24H-v1
+```
+
+Current statuses can include:
+
+```text
+PRODUCTION
+UNAVAILABLE
+DISCOVERED_NOT_ACTIVATED
+```
+
+The registry never promotes a discovered artifact automatically.
+
+---
+
+# 18. Drift Observatory
+
+`core/drift.py` compares an active/evaluation population with a reference population.
+
+Current checks include:
+
+- 0h leakage median shift;
+- 24h leakage median shift;
+- `usable_for_ml` rate shift.
+
+Median shifts use robust median/MAD scaling.
+
+States:
+
+```text
+STABLE
+WATCH
+ALERT
+UNAVAILABLE
+```
+
+Current implementation semantics:
+
+> Recompute the snapshot whenever data are uploaded/activated; no background streaming monitor is claimed.
+
+This is deliberate. SPARK currently performs on-demand population monitoring rather than pretending to be a continuous Kafka/edge service.
+
+---
+
+# 19. Calibration Monitor
+
+`core/calibration.py` evaluates whether Module-B uncertainty bounds are behaving as expected when 168h evaluation truth is available.
+
+Current checks include:
+
+```text
+central 90% interval coverage
+one-sided safety-upper coverage
+```
+
+Representative output:
+
+```text
+expected_pct
+observed_pct
+gap_percentage_points
+state
+recalibration_review_required
+auto_recalibration = False
+```
+
+The monitor may return:
+
+```text
+CALIBRATED
+WATCH
+RECALIBRATION_REVIEW
+```
+
+but it never changes production calibration automatically.
+
+---
+
+# 20. Lot and batch intelligence
+
+`core/lot_intelligence.py` aggregates component-level evidence into population-level health views.
+
+For each lot SPARK can report:
+
+```text
+component count
+health_state
+Module-A escalated percentage
+Module-A reject percentage
+24h robust-z outlier percentage
+median 0h leakage
+median 24h leakage
+median 0→24h slope
+action counts
+QA decision count
+QA override count
+QA override rate
+```
+
+Lot-health states:
+
+```text
+STABLE
+ELEVATED
+ALERT
+```
+
+SPARK also summarizes burn-in batches so engineers can move from individual-device screening to population triage.
+
+The lot-health state is a prioritization signal, not a failure probability.
+
+---
+
+# 21. Commonality Engine
+
+`core/commonality.py` asks:
+
+> What attributes are disproportionately represented among escalated components?
+
+It can compare categorical support between risky and reference populations for fields such as:
+
+```text
+lot_id
+burnin_batch_id
+instrument_id
+part_number
+qualification_level
+```
+
+and can compare numeric medians for features such as:
+
+```text
+robust_z_24h
+historical_robust_z_24h
+slope_0_24_uA_per_h
+lot_shift_score_at_24h
+```
+
+Representative outputs:
+
+```text
+risky_support_pct
+reference_support_pct
+enrichment_ratio
+risky_median
+reference_median
+median_delta
+```
+
+The engine explicitly reports:
+
+```text
+causal_claim = False
+```
+
+SPARK therefore claims statistical commonality / enrichment, **not causality**.
+
+---
+
+# 22. Governed feedback learning
+
+`core/feedback_learning.py` converts human-review history into an offline engineering review queue.
+
+It can detect patterns such as:
+
+```text
+repeated QA-OVR-006 reason codes
+repeated WATCH -> HOLD transitions
+repeated model/threshold review flags
+lot-specific disagreement concentration
+```
+
+The resulting candidates may suggest:
+
+```text
+MODEL_THRESHOLD_REVIEW
+RECURRING_OVERRIDE_REASON
+RECURRING_DISAGREEMENT_TRANSITION
+```
+
+Hard safeguards:
+
+```text
+automatic_retraining = False
+automatic_threshold_change = False
+```
+
+This is a governed feedback loop, not online learning.
+
+---
+
+# 23. UI workflow
+
+Final navigation:
+
+```text
+01  Overview
+02  Datasets
+03  Process Monitor
+04  Analysis
+05  Model Health
+06  Lot Intelligence
+07  QA Inspector
+08  Decision History
+```
+
+### Overview
+
+High-level active dataset state and key system information.
+
+### Datasets
+
+- list managed datasets;
+- upload CSV / Excel;
+- activate a dataset;
+- preserve original and bundled demo datasets as read-only;
+- remove user uploads.
+
+### Process Monitor
+
+Exploratory numeric signal monitoring and control-limit views.
+
+### Analysis
+
+Descriptive statistics, correlations, signal profiles, generic robust evidence, and comparison views.
+
+### Model Health
+
+- model registry;
+- schema fingerprint;
+- artifact hashes;
+- applicability distribution;
+- drift snapshot;
+- calibration monitoring;
+- discovered-but-not-activated 96h artifact visibility.
+
+### Lot Intelligence
+
+- lot health;
+- batch health;
+- population escalation;
+- commonality / enrichment evidence.
+
+### QA Inspector
+
+Per-component review with the full decision chain:
+
+```text
+Applicability
+→ Data Trust
+→ Engineering Safety
+→ Reliability Risk
+→ Explainability
+→ Module A
+→ Module B
+→ Rolling 96h update
+→ Human QA disposition
+```
+
+### Decision History
+
+- governed QA ledger;
+- integrity status;
+- explanation reason codes;
+- machine-vs-human disagreement;
+- override reason;
+- feedback summary;
+- feedback-learning review candidates.
+
+---
+
+# 24. API reference
+
+Base local URL:
+
+```text
+http://127.0.0.1:5000
+```
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/` | Main dashboard |
+| GET | `/api/health` | Service/version/pipeline-root health |
+| GET | `/api/datasets` | List managed datasets |
+| POST | `/api/datasets/upload` | Upload CSV / Excel |
+| POST | `/api/datasets/<dataset_id>/activate` | Activate dataset |
+| DELETE | `/api/datasets/<dataset_id>` | Remove user-uploaded dataset and its QA history |
+| GET | `/api/datasets/<dataset_id>/analysis` | Dataset analysis payload |
+| GET | `/api/datasets/<dataset_id>/model-health` | Registry, applicability, drift, calibration |
+| GET | `/api/datasets/<dataset_id>/lot-intelligence` | Lot health + commonality |
+| GET | `/api/datasets/<dataset_id>/signals/<column>/control` | Signal control limits |
+| GET | `/api/datasets/<dataset_id>/inspection/<index>/assessment` | Component-level full assessment |
+| GET | `/api/datasets/<dataset_id>/records/<index>/assessment` | Backward-compatible assessment route |
+| GET | `/api/datasets/<dataset_id>/comparison` | Dataset comparison payload |
+| GET | `/api/qa/<dataset_id>` | QA decision history |
+| POST | `/api/qa/<dataset_id>` | Save governed QA decision |
+| GET | `/api/qa/<dataset_id>/integrity` | Verify local ledger integrity |
+| GET | `/api/qa/<dataset_id>/feedback-summary` | Aggregate QA governance statistics |
+| GET | `/api/qa/<dataset_id>/feedback-learning` | Offline review candidates |
+| GET | `/api/pipeline/status` | Original Module-A / Module-B status |
+
+---
+
+# 25. Repository structure
+
+```text
+SPARK_GITHUB/
+│
+├── app.py
+├── README.md
+├── DEMO_CHECKLIST.md
+├── FIX_MANIFEST.txt
+├── requirements.txt
+├── run_phase7.bat
+│
+├── core/
+│   ├── analysis_engine.py
+│   ├── applicability.py
+│   ├── calibration.py
+│   ├── commonality.py
+│   ├── config.py
+│   ├── dataset_manager.py
+│   ├── drift.py
+│   ├── explainability.py
+│   ├── feedback_learning.py
+│   ├── gates.py
+│   ├── governance.py
+│   ├── inspection.py
+│   ├── lot_intelligence.py
+│   ├── model_registry.py
+│   ├── pipeline_adapter.py
+│   ├── qa_manager.py
+│   ├── risk_engine.py
+│   └── rolling_forecast.py
+│
+├── samples/
+│   └── spark_igbt_demo_dataset.csv
+│
+├── static/
+│   ├── css/style.css
+│   ├── js/app.js
+│   └── vendor/plotly.min.js
+│
+├── templates/
+│   └── index.html
+│
+├── tests/
+│   ├── test_explainability.py
+│   ├── test_gates.py
+│   ├── test_governance.py
+│   ├── test_phase6.py
+│   ├── test_phase7.py
+│   ├── test_phase8.py
+│   ├── test_phase9.py
+│   ├── test_risk_engine.py
+│   └── test_traceability.py
+│
+└── data/                     # runtime state; not source-of-truth training data
+    ├── registry.json
+    └── qa/
+```
+
+The original trained ML artifacts and source package currently live in the external Phase-1 project referenced by `SPARK_PIPELINE_ROOT` or auto-detection.
+
+---
+
+# 26. Installation
+
+Tested Windows workflow:
+
+```bat
+cd /d C:\path\to\SPARK_GITHUB
+py -3.13 -m venv .venv
+call .venv\Scripts\activate.bat
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Dependencies:
+
+```text
+Flask>=3.1,<4
+pandas>=2.2,<3
+numpy>=2.0,<3
+openpyxl>=3.1,<4
+xlrd>=2.0,<3
+joblib>=1.4,<2
+scikit-learn==1.9.0
+pytest>=8,<10
+```
+
+The exact scikit-learn pin matters because the current Phase-1 serialized artifacts were created with scikit-learn 1.9.0.
+
+---
+
+# 27. Running locally
+
+Activate the environment:
+
+```bat
+call .venv\Scripts\activate.bat
+```
+
+If Phase-1 is not in one of the historical auto-detected locations:
+
+```bat
+set SPARK_PIPELINE_ROOT=C:\path\to\sih26170_prototype
+```
+
+Optional host/port:
+
+```bat
+set SPARK_HOST=127.0.0.1
+set SPARK_PORT=5000
+```
+
+Start:
+
+```bat
+python app.py
+```
+
+Open:
+
+```text
+http://127.0.0.1:5000
+```
+
+Pipeline status:
+
+```bat
+python -c "from core.config import load_settings; from core.pipeline_adapter import PipelineAdapter; import pprint; pprint.pp(PipelineAdapter(load_settings().pipeline_root).status())"
+```
+
+Healthy dual-model integration should report:
+
+```text
+module_a_available = True
+module_b_available = True
+prediction_available = True
+selected_model = median_ensemble
+```
+
+---
+
+# 28. Testing
+
+Compile Python:
+
+```bat
+python -m compileall -q app.py core tests
+```
+
+Validate browser JavaScript syntax:
+
+```bat
+node --check static\js\app.js
+```
+
+Run complete regression:
+
+```bat
+python -m pytest -q
+```
+
+Current Windows validation snapshot for Version 9.0.0:
+
+```text
+57 passed
+0 failed
+```
+
+The suite covers, among other things:
+
+- Data Trust behavior;
+- hard electrical safety precedence;
+- Module-A and Module-B adapter behavior;
+- risk-engine precedence;
+- deterministic explanation codes;
+- QA governance and override validation;
+- ledger integrity;
+- schema fingerprints and model registry;
+- applicability / OOD abstention;
+- drift snapshots;
+- 96h trajectory update;
+- lot-health escalation;
+- commonality behavior;
+- interval calibration monitoring;
+- governed feedback-learning candidates.
+
+---
+
+# 29. Current validated reference metadata
+
+These values describe the current reference artifacts/dataset and are not universal SPARK guarantees.
+
+### Module A
+
+```text
+Algorithm:
+Lot MAD + historical baseline + batch slope + Isolation Forest
+
+Prediction/screening cutoff:
+24h
+
+Uses ground-truth labels:
+False
+```
+
+### Module B
+
+```text
+Selected model:
+median_ensemble
+
+Prediction cutoff:
+24h
+
+Forecast time:
+168h
+
+Uses 96h / 168h as inputs:
+False
+
+Uses hidden truth labels:
+False
+```
+
+Reference validation MAE recorded in the current artifact metadata:
+
+| Candidate | Validation MAE (µA) |
+|---|---:|
+| Linear extrapolation | 11.7898 |
+| Huber | 12.1639 |
+| Histogram Gradient Boosting | 14.6514 |
+| Extra Trees | 16.2244 |
+| **Median ensemble** | **7.8657** |
+
+Current reference calibration-monitor snapshot observed during final Phase-9 validation:
+
+```text
+central 90% interval coverage
+expected = 90.00%
+observed = 86.86%
+state = WATCH
+
+a one-sided safety upper bound
+expected = 99.50%
+observed = 99.61%
+state = CALIBRATED
+
+auto_recalibration = False
+```
+
+These are evaluation observations for the current synthetic/reference dataset, not future performance guarantees.
+
+---
+
+# 30. Important engineering semantics
+
+To avoid overclaiming, use the following terminology exactly.
+
+### Reliability Risk Score
+
+**Correct:** transparent QA prioritization index.
+**Incorrect:** probability of failure.
+
+### Data Trust percentage
+
+**Correct:** percentage of applicable evidence-quality checks passed.
+**Incorrect:** ML confidence.
+
+### Model Applicability robust distance
+
+**Correct:** robust distance from a reference population under the implemented screening method.
+**Incorrect:** probability that the model is correct.
+
+### 96h update
+
+**Correct:** transparent engineering trajectory update.
+**Incorrect:** trained 96h ML model.
+
+### Commonality
+
+**Correct:** statistical enrichment / association.
+**Incorrect:** causal proof.
+
+### Calibration Monitor
+
+**Correct:** evaluation/backtest of interval coverage.
+**Incorrect:** automatic production recalibration.
+
+### Feedback learning
+
+**Correct:** offline review candidate generation.
+**Incorrect:** autonomous online learning.
+
+### SHA-256 ledger
+
+**Correct:** local tamper-evident chain/fingerprint mechanism.
+**Incorrect:** blockchain, digital signature, external timestamp proof.
+
+---
+
+# 31. Known limitations
+
+SPARK is a serious engineering prototype, but it is not yet a production-certified reliability platform.
+
+Current limitations include:
+
+1. **External Phase-1 dependency** — trained artifacts/source are still expected from a separate Phase-1 project path.
+2. **No production WSGI deployment** — local execution uses Flask's development server.
+3. **No authentication / authorization layer** — suitable for controlled demo/prototype environments, not public production access.
+4. **No database-backed multi-user concurrency** — QA history is local JSON storage.
+5. **No cryptographic identity/signature authority** — ledger hashes detect changes but do not prove signer identity.
+6. **No automatic model promotion** — intentional safety policy.
+7. **No streaming drift infrastructure** — drift snapshots are recomputed on demand.
+8. **No trained 96h ML model in the current deployed contract** — the 96h update is engineering-based.
+9. **Commonality is not causal RCA** — stronger causal claims require additional data and validation.
+10. **Calibration checks require evaluation truth** — they are not available for components whose future outcome is not yet known.
+11. **Current applicability method is a robust reference screen** — it is not a universal OOD detector for arbitrary semiconductor domains.
+12. **Reference data are synthetic/prototype data** — production validation on representative device families is still required.
+
+---
+
+# 32. Deployment considerations
+
+A public/cloud deployment must first make inference self-contained.
+
+The local prototype currently expects an external path containing:
+
+```text
+src/sih26170/
+artifacts/models/module_a_24h.joblib
+artifacts/models/module_b_24h.joblib
+data/processed/02_clean_measurements_long.csv
+```
+
+Before deployment:
+
+1. package only the inference-time Phase-1 source required by the adapter;
+2. package model artifacts with verified SHA-256 identities;
+3. package a safe reference dataset or fitted reference statistics required by applicability/drift features;
+4. remove hard dependence on a Windows-specific external path;
+5. verify model/data licensing and repository size;
+6. switch from Flask development server to a production WSGI/container entrypoint;
+7. add access control if deployment is public;
+8. define persistent storage for QA records if the host filesystem is ephemeral.
+
+A deployment manifest should ideally map:
+
+```text
+Dataset version
+Schema version
+Feature-engineering version
+Feature-set version
+Model version
+Validation report
+Artifact SHA-256
+Deployment status
+```
+
+---
+
+# 33. Research and industry context
+
+SPARK is an original prototype architecture built for SIH26170. The following sources informed the broader engineering direction; they are references, not claims that SPARK reproduces those commercial products.
+
+### Semiconductor analytics / lifecycle platforms
+
+- **PDF Solutions — Exensio Test Operations**
+  Real-time semiconductor test data collection, outlier detection, quality/reliability rules, adaptive test, and bidirectional tester control.
+  https://www.pdf.com/products/exensio-analytics-platform/modules/test-operations/
+
+- **Onto Innovation — Discover Yield**
+  Semiconductor yield-management platform covering data integration, commonality-of-effects analysis, multivariate analysis, traceability/genealogy, and predictive analytics.
+  https://ontoinnovation.com/products/discover-yield/
+
+- **yieldHUB — Safety-Critical Semiconductor Manufacturing**
+  Parametric drift, multi-lot/within-lot anomaly monitoring, burn-in/life-test drift analysis, genealogy, and audit-oriented reliability workflows.
+  https://www.yieldhub.com/safety-critical-semiconductor-manufacturing
+
+- **Synopsys — Silicon Lifecycle Management**
+  Lifecycle monitoring and analytics spanning NPI, production, and in-field silicon health.
+  https://www.synopsys.com/solutions/silicon-lifecycle-management.html
+
+- **Synopsys — Monitor Analytics**
+  Design-aware silicon analytics, automated outlier/trend detection, and spatial/temporal process-drift analysis.
+  https://www.synopsys.com/solutions/silicon-lifecycle-management/monitor-analytics.html
+
+- **Teradyne — Archimedes Analytics**
+  Real-time semiconductor-test analytics with secure, bidirectional feedback to test systems.
+  https://www.teradyne.com/analytics/
+
+### Research directions relevant to SPARK
+
+- Isaac Gibbs, Emmanuel Candès — **Adaptive Conformal Inference Under Distribution Shift**
+  Adaptive conformal methods for maintaining useful coverage behavior under changing distributions.
+  https://arxiv.org/abs/2106.00170
+
+- Yubo Hou et al. — **Evidential Domain Adaptation for Remaining Useful Life Prediction with Incomplete Degradation**
+  Research on domain shift, degradation-stage mismatch, and uncertainty in RUL transfer settings.
+  https://arxiv.org/abs/2603.15687
+
+- **AERCA — anomaly-effect root cause analysis, ICLR 2025**
+  Research example of causal/time-series RCA beyond SPARK's current non-causal commonality engine.
+  https://proceedings.iclr.cc/paper_files/paper/2025/hash/6fde96479648d71e4fd9724374bf76eb-Abstract-Conference.html
+
+### Why these references matter
+
+They support the broader engineering pattern SPARK follows:
+
+```text
+collect trustworthy data
+→ detect abnormal behavior
+→ estimate future risk
+→ monitor model applicability / drift
+→ explain decisions
+→ retain human governance
+→ preserve traceability
+```
+
+They do **not** imply equivalence, certification, interoperability, or commercial affiliation.
+
+---
+
+# 34. Demo flow
+
+Recommended final demonstration sequence:
+
+### Step 1 — Dataset
+
+Activate the original reference dataset or a controlled validation challenge dataset.
+
+### Step 2 — Model Health
+
+Show:
+
+```text
+production model registry
+artifact SHA-256
+schema fingerprint
+applicability summary
+drift status
+calibration status
+```
+
+### Step 3 — Lot Intelligence
+
+Show:
+
+```text
+lot health
+batch health
+escalation rates
+commonality evidence
+```
+
+State explicitly that commonality is not causality.
+
+### Step 4 — QA Inspector
+
+For one normal and one abnormal component, walk through:
+
+```text
+Model Applicability
+Data Trust
+Engineering Safety
+Module A
+Module B
+Rolling 96h update
+Reliability Risk
+Explainability
+```
+
+### Step 5 — Human QA decision
+
+Record AGREE or controlled OVERRIDE.
+
+For an override, demonstrate:
+
+```text
+override reason code
+mandatory justification
+disagreement classification
+```
+
+### Step 6 — Decision History
+
+Show:
+
+```text
+reason code
+machine recommendation
+human decision
+final disposition
+ledger integrity
+feedback summary
+review candidates
+```
+
+### Step 7 — Close with the core message
+
+> SPARK does not replace QA engineering. It combines time-safe reliability evidence, deterministic safeguards, model-aware uncertainty, and governed human review so that abnormal early-life behavior is easier to detect, explain, and trace.
+
+---
+
+# 35. Roadmap
+
+Major feature expansion is currently considered complete for the SIH prototype.
+
+The next work should focus on validation and deployment rather than adding more intelligence modules.
+
+Recommended sequence:
+
+```text
+1. Definitive documentation
+2. Validation Challenge Dataset
+3. Hidden scenario truth file
+4. Expected-vs-actual automated validation
+5. Final validation report
+6. Self-contained inference packaging
+7. Free/container deployment
+8. Final demo evidence / screenshots
+```
+
+Longer-term research candidates, only after stronger production data exist:
+
+```text
+cross-stage component genealogy
+true causal RCA
+physics-informed reliability models
+survival / time-to-threshold distributions
+self-supervised rare-pattern discovery
+federated reliability learning
+epistemic vs aleatoric uncertainty separation
+validated adaptive burn-in optimization
+```
+
+---
+
+## Project status
+
+```text
+Core reliability pipeline           COMPLETE
+Trustworthy QA decision stack       COMPLETE
+Model lifecycle controls            COMPLETE
+Population intelligence             COMPLETE
+Regression suite                    57 passed / 0 failed
+Definitive README                    THIS DOCUMENT
+Challenge validation dataset        NEXT
+Deployment packaging                NEXT
+```
+
+---
+
+## Repository
+
+GitHub: `https://github.com/Anish1441/SPARK-Engineering-Quality-Intelligence`
+
+Current project lineage:
+
+```text
+Original Phase-1 reliability models
+        ↓
+Recovered/stabilized Phase 7 platform
+        ↓
+Phase 8 trustworthy model lifecycle
+        ↓
+Phase 9 population intelligence
+        ↓
+Validation + deployment finalization
+```
+
+---
+
+**SPARK is an engineering decision-support prototype. Final acceptance, rejection, qualification, or release of safety- or mission-critical hardware remains an authorized engineering/QA responsibility.**
