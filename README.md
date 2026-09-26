@@ -1,6 +1,7 @@
 # SPARK S.P.A.R.K. — Smart Predictive Anomaly & Reliability Knowledgebase
 Transforming Burn-In Data into Actionable Reliability Intelligence
 
+
 Smart → hybrid engineering + AI decision support
 Predictive → 168h forecasting from early burn-in checkpoints
 Anomaly → dynamic outlier and lot-aware detection
