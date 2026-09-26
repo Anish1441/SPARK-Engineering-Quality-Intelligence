@@ -175,7 +175,10 @@ def signal_control(
     """
     Calculate descriptive control limits and robust outlier screening.
 
-    Important:
+    outlier_indices are positional indices in the ORIGINAL dataframe, even
+    when the signal contains missing/non-finite values. This is important for
+    traceability back to the source record.
+
     These limits are analytical screening limits, not engineering
     specifications.
     """
@@ -183,39 +186,31 @@ def signal_control(
     if column not in df.columns:
         raise KeyError("Signal not found.")
 
-    x = _finite(df[column])
+    numeric = pd.to_numeric(df[column], errors="coerce")
+    raw = numeric.to_numpy(dtype=float, na_value=np.nan)
+    finite_mask = np.isfinite(raw)
+    positions = np.flatnonzero(finite_mask)
+    x = raw[finite_mask]
 
     if len(x) < 3:
         return {
             "signal": column,
             "eligible": False,
-            "reason": (
-                "At least 3 finite observations are required."
-            ),
-            "values": [],
+            "reason": "At least 3 finite observations are required.",
+            "values": [float(value) for value in x],
+            "observation_indices": [int(i) for i in positions],
+            "outlier_indices": [],
         }
 
     mean = float(np.mean(x))
     std = float(np.std(x, ddof=1))
-
     median = float(np.median(x))
-
-    mad = float(
-        np.median(np.abs(x - median))
-    )
-
-    scale = (
-        1.4826 * mad
-        or std
-        or 1.0
-    )
-
-    robust_z = np.abs(
-        (x - median) / scale
-    )
+    mad = float(np.median(np.abs(x - median)))
+    scale = 1.4826 * mad or std or 1.0
+    robust_z = np.abs((x - median) / scale)
 
     outlier_indices = [
-        int(i)
+        int(positions[i])
         for i, value in enumerate(robust_z)
         if value >= 3.5
     ]
@@ -230,17 +225,12 @@ def signal_control(
         "lcl": mean - 3.0 * std,
         "median": median,
         "mad": mad,
-        "values": [
-            float(value)
-            for value in x
-        ],
+        "values": [float(value) for value in x],
+        "observation_indices": [int(i) for i in positions],
         "outlier_indices": outlier_indices,
-        "method": (
-            "Shewhart 3-sigma + robust MAD screen"
-        ),
+        "method": "Shewhart 3-sigma + robust MAD screen",
         "note": (
-            "Descriptive screening limits; "
-            "not engineering specifications."
+            "Descriptive screening limits; not engineering specifications."
         ),
     }
 

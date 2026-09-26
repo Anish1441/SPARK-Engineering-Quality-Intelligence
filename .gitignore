@@ -1,7 +1,36 @@
+# Python environments and caches
 .venv/
+venv/
 __pycache__/
 .pytest_cache/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+
+# Runtime/local data (bundled samples live in samples/ and ARE tracked)
 data/
+
+# Secrets / local configuration
 .env
+.env.*
+!.env.example
+
+# Frontend/runtime caches
+node_modules/
+dist/
+build/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs / temporary / backup files
+*.log
+*.tmp
+*.temp
 *.bak
+~$*

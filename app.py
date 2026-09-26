@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import datetime as dt
 import math
-import os
 import threading
 import time
 import uuid
@@ -14,6 +13,7 @@ import numpy as np
 import pandas as pd
 from flask import Flask, jsonify, render_template, request
 
+from core.config import load_settings
 from core.dataset_manager import DatasetManager, DatasetError
 from core.analysis_engine import (
     analyze_dataset,
@@ -23,22 +23,19 @@ from core.analysis_engine import (
 )
 from core.qa_manager import QAManager
 from core.pipeline_adapter import PipelineAdapter
+from core.inspection import resolve_inspection_target
+from core.gates import data_confidence_gate, engineering_safety_gate
+from core.risk_engine import reliability_risk_engine
+from core.explainability import build_decision_explanation
 
 
 # ---------------------------------------------------------------------------
 # APPLICATION CONFIGURATION
 # ---------------------------------------------------------------------------
 
-BASE = os.path.dirname(os.path.abspath(__file__))
-DATA = os.path.join(BASE, "data")
-
-PIPELINE = os.environ.get(
-    "SPARK_PIPELINE_ROOT",
-    r"C:\Users\anish\OneDrive\Desktop\SPARK_PHASE1",
-)
-
-HOST = os.environ.get("SPARK_HOST", "127.0.0.1")
-PORT = int(os.environ.get("SPARK_PORT", "5000"))
+SETTINGS = load_settings()
+HOST = SETTINGS.host
+PORT = SETTINGS.port
 
 
 # ---------------------------------------------------------------------------
@@ -46,16 +43,19 @@ PORT = int(os.environ.get("SPARK_PORT", "5000"))
 # ---------------------------------------------------------------------------
 
 app = Flask(__name__)
-
 app.config["MAX_CONTENT_LENGTH"] = 200 * 1024 * 1024
 
-dm = DatasetManager(DATA)
-qa = QAManager(os.path.join(DATA, "qa"))
+dm = DatasetManager(
+    SETTINGS.data_dir,
+    pipeline_root=SETTINGS.pipeline_root,
+    sample_root=SETTINGS.sample_dir,
+)
+qa = QAManager(SETTINGS.qa_dir)
 
 # IMPORTANT:
-# This adapter loads the ORIGINAL SPARK ML pipeline.
-# No prediction is fabricated inside this application.
-ml = PipelineAdapter(PIPELINE)
+# This adapter loads the ORIGINAL SPARK Phase-1 Module-A and Module-B
+# pipelines. No anomaly or prediction result is fabricated here.
+ml = PipelineAdapter(SETTINGS.pipeline_root)
 
 
 # ---------------------------------------------------------------------------
@@ -156,100 +156,105 @@ def safe_jsonify(
 def _qa_comment(
     statistical: dict[str, Any],
     model: dict[str, Any],
+    data_confidence: dict[str, Any],
+    engineering_safety: dict[str, Any],
+    reliability_risk: dict[str, Any],
 ) -> str:
-    """
-    Generate a concise engineering evidence statement.
+    """Generate a concise, evidence-only engineering statement.
 
-    The statement does not make the final QA disposition.
-    It reports statistical evidence and the actual ML pipeline result.
+    SPARK reports three separate evidence sources here: generic statistical
+    context, original Phase-1 Module-A dynamic anomaly evidence, and original
+    Phase-1 Module-B drift forecasting. The final QA disposition remains a
+    human decision.
     """
 
     state = statistical.get("state", "REVIEW")
     score = statistical.get("score")
     contributors = statistical.get("contributors") or []
 
-    model_available = bool(model.get("available"))
-
-    prediction = model.get("prediction_168h_uA")
-
-    lower = model.get("prediction_lower_05_uA")
-    upper = model.get("prediction_upper_95_uA")
-
-    selected_model = model.get("model")
-
-    # ---------------------------------------------------------------
-    # Statistical evidence
-    # ---------------------------------------------------------------
-
     if contributors:
         top = contributors[0]
-
-        signal = top.get(
-            "signal",
-            "the leading signal",
-        )
-
+        signal = top.get("signal", "the leading signal")
         robust_z = top.get("robust_z")
-
-        evidence = (
-            f"{signal} is the leading statistical contributor"
-        )
-
+        evidence = f"{signal} is the leading statistical contributor"
         if isinstance(robust_z, (int, float)):
             evidence += f" at robust-z {robust_z:.2f}"
-
         evidence += "."
-
     else:
         evidence = (
-            "No strong population-level numeric deviation "
-            "was detected."
+            "No strong population-level numeric deviation was detected."
         )
 
-    # ---------------------------------------------------------------
-    # Statistical score
-    # ---------------------------------------------------------------
+    score_text = (
+        f"{score}/100" if isinstance(score, (int, float))
+        else "not available"
+    )
 
-    if isinstance(score, (int, float)):
-        score_text = f"{score}/100"
+    data_status = data_confidence.get("status", "UNAVAILABLE")
+    data_score = data_confidence.get("score_pct")
+    data_text = f" Data Trust Gate is {data_status}"
+    if isinstance(data_score, (int, float)):
+        data_text += f" at {data_score:.1f}% evidence confidence"
+    data_text += "."
+
+    safety_status = engineering_safety.get("status", "UNAVAILABLE")
+    safety_text = f" Engineering Safety Gate is {safety_status}."
+    if engineering_safety.get("reason"):
+        safety_text += f" {engineering_safety['reason']}"
+
+    module_a = model.get("module_a") or {}
+    if module_a.get("available"):
+        action = module_a.get("action") or "REVIEW"
+        reason = module_a.get("primary_reason")
+        a_text = (
+            f" Original SPARK Module-A returned {action}."
+        )
+        if reason:
+            a_text += f" {reason}"
     else:
-        score_text = "not available"
-
-    # ---------------------------------------------------------------
-    # Real ML evidence
-    # ---------------------------------------------------------------
-
-    if model_available:
-        model_text = (
-            " The original SPARK Module-B ML pipeline "
-            f"({selected_model or 'selected model'}) "
-            "returned a 168h prediction"
+        a_text = (
+            " Original SPARK Module-A did not return dynamic anomaly "
+            "evidence for this component."
         )
 
-        if isinstance(prediction, (int, float)):
-            model_text += f" of {prediction:.3f} uA"
+    module_b = model.get("module_b") or model
+    prediction = module_b.get("prediction_168h_uA")
+    lower = module_b.get("prediction_lower_05_uA")
+    upper = module_b.get("prediction_upper_95_uA")
+    selected_model = module_b.get("model")
 
+    if module_b.get("available"):
+        b_text = (
+            " Original SPARK Module-B "
+            f"({selected_model or 'selected model'}) returned a 168h prediction"
+        )
+        if isinstance(prediction, (int, float)):
+            b_text += f" of {prediction:.3f} uA"
         if (
             isinstance(lower, (int, float))
             and isinstance(upper, (int, float))
         ):
-            model_text += (
-                f" with a model interval of "
-                f"{lower:.3f}–{upper:.3f} uA"
-            )
-
-        model_text += "."
-
+            b_text += f" with a model interval of {lower:.3f}–{upper:.3f} uA"
+        b_text += "."
     else:
-        model_text = (
-            " The original SPARK Module-B ML pipeline "
-            "did not return an inference for this record."
+        b_text = (
+            " Original SPARK Module-B did not return a drift forecast for "
+            "this component."
         )
 
+    risk_action = reliability_risk.get("unified_action", "HOLD")
+    risk_band = reliability_risk.get("risk_band", "INDETERMINATE")
+    risk_score = reliability_risk.get("reliability_risk_score")
+    risk_text = f" Unified Reliability Risk Engine recommends {risk_action} ({risk_band})"
+    if isinstance(risk_score, (int, float)):
+        risk_text += f" with prioritisation index {risk_score:.1f}/100"
+    risk_text += "."
+    if reliability_risk.get("reason"):
+        risk_text += f" {reliability_risk['reason']}"
+
     return (
-        f"Statistical assessment is {state} with an "
-        f"analytical score of {score_text}. "
-        f"{evidence}{model_text}"
+        f"Statistical assessment is {state} with an analytical score of "
+        f"{score_text}. {evidence}{data_text}{safety_text}{a_text}{b_text}{risk_text}"
     )
 
 
@@ -274,7 +279,8 @@ def health():
             "service": (
                 "SPARK Engineering Quality Intelligence"
             ),
-            "version": "7.0.0",
+            "version": "7.6.0",
+            "pipeline_root": str(SETTINGS.pipeline_root),
         }
     )
 
@@ -348,16 +354,17 @@ def activate(dataset_id):
 @app.delete("/api/datasets/<dataset_id>")
 def remove(dataset_id):
     try:
-        return safe_jsonify(
-            dm.remove(dataset_id)
-        )
+        result = dm.remove(dataset_id)
+        result["qa_records_deleted"] = qa.delete_dataset(dataset_id)
+        ml.invalidate(dataset_id)
+        return safe_jsonify(result)
 
     except DatasetError as exc:
         return safe_jsonify(
             {
                 "detail": str(exc),
             },
-            404,
+            400,
         )
 
 
@@ -419,25 +426,27 @@ def control(dataset_id, column):
 
 
 # ---------------------------------------------------------------------------
-# RECORD ASSESSMENT
+# RECORD / COMPONENT ASSESSMENT
 # ---------------------------------------------------------------------------
 
+@app.get(
+    "/api/datasets/<dataset_id>/inspection/<int:index>/assessment"
+)
 @app.get(
     "/api/datasets/<dataset_id>/records/<int:index>/assessment"
 )
 def assessment(dataset_id, index):
     """
-    Return statistical + ORIGINAL SPARK ML assessment.
+    Return statistical + ORIGINAL SPARK Module-A/Module-B assessment.
 
-    ML path:
+    Evidence path:
 
         Dataset
             ↓
         Original SPARK feature engineering
             ↓
-        Original module_b_24h.joblib
-            ↓
-        Original predict_module_b()
+        Module A: module_a_24h.joblib + score_module_a()
+        Module B: module_b_24h.joblib + predict_module_b()
             ↓
         QA Inspector
     """
@@ -448,6 +457,8 @@ def assessment(dataset_id, index):
         # -----------------------------------------------------------
 
         _, df = dm.get(dataset_id)
+        target = resolve_inspection_target(df, index)
+        raw_index = target["record_index"]
 
         # -----------------------------------------------------------
         # Existing statistical assessment
@@ -455,7 +466,7 @@ def assessment(dataset_id, index):
 
         statistical = record_assessment(
             df,
-            index,
+            raw_index,
         )
 
         # -----------------------------------------------------------
@@ -464,24 +475,137 @@ def assessment(dataset_id, index):
 
         model = ml.assess(
             df,
-            index,
+            raw_index,
+            cache_key=dataset_id,
+        )
+
+        # -----------------------------------------------------------
+        # SAFETY / DATA-TRUST GUARDRAILS (EARLY EVIDENCE <= 24h)
+        # -----------------------------------------------------------
+
+        data_confidence = data_confidence_gate(df, raw_index)
+        engineering_safety = engineering_safety_gate(df, raw_index)
+
+        # -----------------------------------------------------------
+        # UNIFIED RELIABILITY RISK ENGINE
+        # -----------------------------------------------------------
+
+        module_a = model.get("module_a") or {}
+        module_b = model.get("module_b") or model
+        reliability_risk = reliability_risk_engine(
+            data_confidence,
+            engineering_safety,
+            module_a,
+            module_b,
+        )
+
+        # -----------------------------------------------------------
+        # DETERMINISTIC QA EXPLAINABILITY
+        # -----------------------------------------------------------
+
+        explanation = build_decision_explanation(
+            data_confidence,
+            engineering_safety,
+            module_a,
+            module_b,
+            reliability_risk,
         )
 
         # -----------------------------------------------------------
         # API RESPONSE
         # -----------------------------------------------------------
 
+        row = df.iloc[raw_index]
+
         result = {
             **statistical,
+            "inspection_index": target["inspection_index"],
+            "inspection_count": target["inspection_count"],
+            "inspection_mode": target["inspection_mode"],
+
+            "component_id": _json_safe(row.get("component_id")),
+            "measurement_time_h": _json_safe(row.get("measurement_time_h")),
+            "lot_id": _json_safe(row.get("lot_id")),
+            "burnin_batch_id": _json_safe(row.get("burnin_batch_id")),
+
+            # -------------------------------------------------------
+            # Data Trust / Engineering Safety guardrails
+            # -------------------------------------------------------
+
+            "data_confidence": data_confidence,
+            "data_confidence_status": data_confidence.get("status"),
+            "data_confidence_score_pct": data_confidence.get("score_pct"),
+            "data_confidence_action": data_confidence.get("action"),
+            "engineering_safety": engineering_safety,
+            "engineering_safety_status": engineering_safety.get("status"),
+            "engineering_safety_action": engineering_safety.get("action"),
+            "engineering_safety_hard_failure": engineering_safety.get("hard_failure"),
+            "engineering_safety_minimum_margin_uA": engineering_safety.get("minimum_margin_uA"),
+            "engineering_safety_limit_uA": engineering_safety.get("engineering_limit_uA"),
+
+            # -------------------------------------------------------
+            # Unified Reliability Risk Engine
+            # -------------------------------------------------------
+
+            "reliability_risk": reliability_risk,
+            "reliability_risk_score": reliability_risk.get("reliability_risk_score"),
+            "reliability_risk_band": reliability_risk.get("risk_band"),
+            "reliability_evidence_completeness_pct": reliability_risk.get("evidence_completeness_pct"),
+            "reliability_unified_action": reliability_risk.get("unified_action"),
+            "reliability_reason": reliability_risk.get("reason"),
+            "reliability_forecast_limit_utilization_pct": reliability_risk.get("forecast_limit_utilization_pct"),
+
+            # -------------------------------------------------------
+            # Deterministic decision explanation / reason codes
+            # -------------------------------------------------------
+
+            "explanation": explanation,
+            "primary_reason_code": explanation.get("primary_reason_code"),
+            "primary_reason_title": explanation.get("primary_reason_title"),
+            "primary_reason": explanation.get("primary_reason"),
+            "reason_codes": explanation.get("reason_codes", []),
+            "decision_path": explanation.get("decision_path", []),
 
             # Complete raw model response.
             "model": model,
+
+
+            # -------------------------------------------------------
+            # Original Module-A dynamic anomaly evidence
+            # -------------------------------------------------------
+
+            "module_a_available": module_a.get("available"),
+            "module_a_action": module_a.get("action"),
+            "module_a_primary_reason": module_a.get("primary_reason"),
+            "module_a_ir_0h_uA": module_a.get("ir_0h_uA"),
+            "module_a_ir_24h_uA": module_a.get("ir_24h_uA"),
+            "module_a_within_lot_risk_score": module_a.get(
+                "within_lot_risk_score"
+            ),
+            "module_a_historical_risk_score": module_a.get(
+                "historical_risk_score"
+            ),
+            "module_a_lot_shift_risk_score": module_a.get(
+                "lot_shift_risk_score"
+            ),
+            "module_a_batch_slope_shift_score": module_a.get(
+                "batch_slope_shift_score"
+            ),
+            "module_a_isolation_forest_raw_score": module_a.get(
+                "isolation_forest_raw_score"
+            ),
+            "module_a_isolation_forest_is_outlier": module_a.get(
+                "isolation_forest_is_outlier"
+            ),
+            "module_a_static_limit_failed_at_24h": module_a.get(
+                "static_limit_failed_at_24h"
+            ),
 
             # -------------------------------------------------------
             # ML availability
             # -------------------------------------------------------
 
-            "ai_available": model.get(
+            "ai_available": module_b.get(
                 "available"
             ),
 
@@ -489,7 +613,7 @@ def assessment(dataset_id, index):
             # Actual selected model
             # -------------------------------------------------------
 
-            "ai_model": model.get(
+            "ai_model": module_b.get(
                 "model"
             ),
 
@@ -497,7 +621,7 @@ def assessment(dataset_id, index):
             # Real 168h prediction
             # -------------------------------------------------------
 
-            "ai_prediction_168h_uA": model.get(
+            "ai_prediction_168h_uA": module_b.get(
                 "prediction_168h_uA"
             ),
 
@@ -505,19 +629,19 @@ def assessment(dataset_id, index):
             # Real prediction interval
             # -------------------------------------------------------
 
-            "ai_prediction_lower_05_uA": model.get(
+            "ai_prediction_lower_05_uA": module_b.get(
                 "prediction_lower_05_uA"
             ),
 
-            "ai_prediction_median_50_uA": model.get(
+            "ai_prediction_median_50_uA": module_b.get(
                 "prediction_median_50_uA"
             ),
 
-            "ai_prediction_upper_95_uA": model.get(
+            "ai_prediction_upper_95_uA": module_b.get(
                 "prediction_upper_95_uA"
             ),
 
-            "ai_prediction_interval_width_uA": model.get(
+            "ai_prediction_interval_width_uA": module_b.get(
                 "prediction_interval_width_uA"
             ),
 
@@ -525,7 +649,7 @@ def assessment(dataset_id, index):
             # Predicted slope
             # -------------------------------------------------------
 
-            "ai_predicted_slope_24_168_uA_per_h": model.get(
+            "ai_predicted_slope_24_168_uA_per_h": module_b.get(
                 "predicted_slope_24_168_uA_per_h"
             ),
 
@@ -533,11 +657,11 @@ def assessment(dataset_id, index):
             # Safety information
             # -------------------------------------------------------
 
-            "ai_safety_margin_uA": model.get(
+            "ai_safety_margin_uA": module_b.get(
                 "safety_margin_uA"
             ),
 
-            "ai_conformal_safety_upper_uA": model.get(
+            "ai_conformal_safety_upper_uA": module_b.get(
                 "conformal_safety_upper_uA"
             ),
 
@@ -545,7 +669,7 @@ def assessment(dataset_id, index):
             # Actual 168h value
             # -------------------------------------------------------
 
-            "ai_actual_ir_168h_uA": model.get(
+            "ai_actual_ir_168h_uA": module_b.get(
                 "actual_ir_168h_uA"
             ),
 
@@ -553,7 +677,7 @@ def assessment(dataset_id, index):
             # Prediction error
             # -------------------------------------------------------
 
-            "ai_absolute_prediction_error_uA": model.get(
+            "ai_absolute_prediction_error_uA": module_b.get(
                 "absolute_prediction_error_uA"
             ),
 
@@ -564,6 +688,9 @@ def assessment(dataset_id, index):
             "qa_comment": _qa_comment(
                 statistical,
                 model,
+                data_confidence,
+                engineering_safety,
+                reliability_risk,
             ),
 
             # -------------------------------------------------------
@@ -571,24 +698,24 @@ def assessment(dataset_id, index):
             # -------------------------------------------------------
 
             "assessment_source": {
-                "analytical": (
-                    "SPARK statistical evidence"
-                ),
-                "ml": (
-                    "Original SPARK Module-B "
-                    "trained ML pipeline"
-                ),
+                "analytical": "SPARK statistical evidence",
+                "data_confidence": "SPARK Data Trust Gate (0h/24h evidence quality)",
+                "engineering_safety": "SPARK Engineering Safety Gate (documented hard limits)",
+                "reliability_risk": "SPARK Unified Reliability Risk Engine (deterministic evidence fusion)",
+                "explainability": "SPARK deterministic reason-code hierarchy (no LLM)",
                 "feature_engineering": (
-                    "Original SPARK "
-                    "build_feature_table()"
+                    "Original SPARK build_feature_table()"
                 ),
-                "inference": (
-                    "Original SPARK "
-                    "predict_module_b()"
-                ),
-                "model_artifact": (
-                    "module_b_24h.joblib"
-                ),
+                "module_a": {
+                    "source": "Original SPARK Module-A dynamic anomaly pipeline",
+                    "inference": "score_module_a()",
+                    "model_artifact": "module_a_24h.joblib",
+                },
+                "module_b": {
+                    "source": "Original SPARK Module-B trained ML pipeline",
+                    "inference": "predict_module_b()",
+                    "model_artifact": "module_b_24h.joblib",
+                },
             },
         }
 
@@ -655,6 +782,36 @@ def qa_list(dataset_id):
             },
             404,
         )
+
+    except ValueError as exc:
+        return safe_jsonify(
+            {
+                "detail": str(exc),
+            },
+            500,
+        )
+
+
+@app.get("/api/qa/<dataset_id>/integrity")
+def qa_integrity(dataset_id):
+    try:
+        dm.get(dataset_id)
+        return safe_jsonify(qa.verify(dataset_id))
+    except DatasetError as exc:
+        return safe_jsonify({"detail": str(exc)}, 404)
+    except ValueError as exc:
+        return safe_jsonify({"detail": str(exc)}, 500)
+
+
+@app.get("/api/qa/<dataset_id>/feedback-summary")
+def qa_feedback_summary(dataset_id):
+    try:
+        dm.get(dataset_id)
+        return safe_jsonify(qa.feedback_summary(dataset_id))
+    except DatasetError as exc:
+        return safe_jsonify({"detail": str(exc)}, 404)
+    except ValueError as exc:
+        return safe_jsonify({"detail": str(exc)}, 500)
 
 
 @app.post("/api/qa/<dataset_id>")

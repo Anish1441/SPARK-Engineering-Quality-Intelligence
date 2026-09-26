@@ -321,8 +321,10 @@ function renderOverview() {
     cards.innerHTML = d
         ? [
             card(
-                "RECORDS",
-                d.rows?.toLocaleString() ?? "—"
+                d.inspection_mode === "component"
+                    ? "COMPONENTS"
+                    : "RECORDS",
+                (d.inspection_count ?? d.rows)?.toLocaleString() ?? "—"
             ),
             card(
                 "FIELDS",
@@ -448,7 +450,10 @@ function renderDatasets() {
                     </h3>
 
                     <small>
-                        ${d.rows?.toLocaleString() ?? "—"} records ·
+                        ${d.rows?.toLocaleString() ?? "—"} rows ·
+                        ${d.inspection_mode === "component"
+                            ? `${(d.inspection_count || 0).toLocaleString()} components · `
+                            : ""}
                         ${d.columns ?? "—"} fields ·
                         ${d.numeric_columns ?? "—"} numeric ·
                         ${d.missing_cells ?? "—"} missing
@@ -462,11 +467,11 @@ function renderDatasets() {
                         Activate
                     </button>
 
-                    <button
-                        class="danger"
-                        onclick="removeD('${esc(d.dataset_id)}')">
-                        Remove
-                    </button>
+                    ${
+                        d.read_only
+                            ? `<button class="danger" disabled title="Managed read-only dataset">Read-only</button>`
+                            : `<button class="danger" onclick="removeD('${esc(d.dataset_id)}')">Remove</button>`
+                    }
 
                 </div>
 
@@ -492,7 +497,7 @@ window.activate = async id => {
         go("qa");
 
         toast(
-            "Dataset activated; inspection reset to record 1"
+            "Dataset activated; inspection reset to the first item"
         );
     } catch (e) {
         toast(e.message);
@@ -582,14 +587,16 @@ async function drawSignal() {
 
         const n = x.values.length;
         const tc = themeColors();
+        const observationX = Array.isArray(x.observation_indices)
+            && x.observation_indices.length === n
+            ? x.observation_indices.map(i => Number(i) + 1)
+            : x.values.map((_, i) => i + 1);
 
         Plotly.newPlot(
             "controlPlot",
             [
                 {
-                    x: x.values.map(
-                        (_, i) => i + 1
-                    ),
+                    x: observationX,
                     y: x.values,
                     mode: "lines+markers",
                     name: "Observed",
@@ -604,7 +611,7 @@ async function drawSignal() {
                         "Value %{y}<extra></extra>"
                 },
                 {
-                    x: [1, n],
+                    x: [observationX[0] ?? 1, observationX[n - 1] ?? n],
                     y: [x.ucl, x.ucl],
                     mode: "lines",
                     name: "UCL",
@@ -614,7 +621,7 @@ async function drawSignal() {
                     }
                 },
                 {
-                    x: [1, n],
+                    x: [observationX[0] ?? 1, observationX[n - 1] ?? n],
                     y: [x.center, x.center],
                     mode: "lines",
                     name: "Center",
@@ -623,7 +630,7 @@ async function drawSignal() {
                     }
                 },
                 {
-                    x: [1, n],
+                    x: [observationX[0] ?? 1, observationX[n - 1] ?? n],
                     y: [x.lcl, x.lcl],
                     mode: "lines",
                     name: "LCL",
@@ -1889,6 +1896,25 @@ function mlError(model) {
     );
 }
 
+function moduleAResult(assessment, model) {
+    return (
+        assessment?.module_a ||
+        model?.module_a ||
+        {}
+    );
+}
+
+function moduleAValue(moduleA, key, fallback = null) {
+    if (
+        moduleA &&
+        Object.prototype.hasOwnProperty.call(moduleA, key) &&
+        moduleA[key] != null
+    ) {
+        return moduleA[key];
+    }
+    return fallback;
+}
+
 
 /* =========================================================
    QA INSPECTOR
@@ -1899,13 +1925,30 @@ async function loadAssessment() {
 
     try {
         const a = await api(
-            `/datasets/${S.active.dataset_id}/records/${S.record}/assessment`
+            `/datasets/${S.active.dataset_id}/inspection/${S.record}/assessment`
         );
 
         S.assessment = a;
 
+        const recommendedAction =
+            a.reliability_unified_action ||
+            a.explanation?.recommended_action ||
+            "";
+
+        if (!S.qaAction && recommendedAction) {
+            S.qaAction = recommendedAction;
+        }
+
+        const inspectionCount =
+            Number(a.inspection_count || S.active.inspection_count || S.active.rows || 0);
+
+        const inspectionLabel =
+            a.inspection_mode === "component"
+                ? "Component"
+                : "Record";
+
         $("#record").textContent =
-            `Record ${a.record_index + 1} of ${S.active.rows.toLocaleString()}`;
+            `${inspectionLabel} ${a.inspection_index + 1} of ${inspectionCount.toLocaleString()}`;
 
 
         /* -----------------------------------------------------
@@ -1971,111 +2014,432 @@ async function loadAssessment() {
 
 
         /* -----------------------------------------------------
-           ORIGINAL SPARK MODULE-B ML
+           ORIGINAL SPARK MODULE-A + MODULE-B EVIDENCE
         ----------------------------------------------------- */
 
         const m = a.model || {};
+        const ma = moduleAResult(a, m);
+        const mb = m.module_b || m;
 
         const modelName =
-            mlModelName(m);
+            mlModelName(mb);
 
         const prediction =
-            mlPrediction(m);
+            mlPrediction(mb);
 
         const lower =
-            mlLower(m);
+            mlLower(mb);
 
         const median =
-            mlMedian(m);
+            mlMedian(mb);
 
         const upper =
-            mlUpper(m);
+            mlUpper(mb);
 
         const interval =
-            mlInterval(m);
+            mlInterval(mb);
 
         const slope =
-            mlSlope(m);
+            mlSlope(mb);
 
         const safety =
-            mlSafetyMargin(m);
+            mlSafetyMargin(mb);
 
         const conformal =
-            mlConformalUpper(m);
+            mlConformalUpper(mb);
 
         const actual =
-            mlActual(m);
+            mlActual(mb);
 
         const error =
-            mlError(m);
+            mlError(mb);
 
         const mlAvailable =
-            m.available === true ||
+            mb.available === true ||
             prediction != null ||
             median != null;
 
+        const moduleAAvailable =
+            ma.available === true;
+
+        const moduleAAction =
+            moduleAValue(
+                ma,
+                "action",
+                "No anomaly result"
+            );
+
+        const moduleAReason =
+            moduleAValue(
+                ma,
+                "primary_reason",
+                ma.message ||
+                "No validated Module-A evidence was returned."
+            );
+
+        const withinLot =
+            moduleAValue(
+                ma,
+                "within_lot_risk_score"
+            );
+
+        const historicalRisk =
+            moduleAValue(
+                ma,
+                "historical_risk_score"
+            );
+
+        const lotShift =
+            moduleAValue(
+                ma,
+                "lot_shift_risk_score"
+            );
+
+        const batchShift =
+            moduleAValue(
+                ma,
+                "batch_slope_shift_score"
+            );
+
+        const isolationScore =
+            moduleAValue(
+                ma,
+                "isolation_forest_raw_score"
+            );
+
+        const isolationOutlier =
+            moduleAValue(
+                ma,
+                "isolation_forest_is_outlier"
+            );
+
+        const staticLimitFailed =
+            moduleAValue(
+                ma,
+                "static_limit_failed_at_24h"
+            );
+
+        const ir0 =
+            moduleAValue(
+                ma,
+                "ir_0h_uA"
+            );
+
+        const ir24 =
+            moduleAValue(
+                ma,
+                "ir_24h_uA"
+            );
+
+        const dataConfidence =
+            a.data_confidence || {};
+
+        const engineeringSafety =
+            a.engineering_safety || {};
+
+        const dataChecks =
+            Array.isArray(dataConfidence.checks)
+                ? dataConfidence.checks
+                : [];
+
+        const safetyFailures =
+            Array.isArray(engineeringSafety.failures)
+                ? engineeringSafety.failures
+                : [];
+
+        $("#guardrailPanel").innerHTML = `
+            <div class="guardrail-grid">
+
+                <div class="guardrail-card">
+                    <div class="guardrail-title">
+                        <span>DATA TRUST GATE</span>
+                        <strong>${esc(dataConfidence.status || "UNAVAILABLE")}</strong>
+                    </div>
+
+                    <div class="guardrail-value">
+                        ${fmt(dataConfidence.score_pct)}
+                        <small>%</small>
+                    </div>
+
+                    <p>${esc(dataConfidence.reason || "No data-confidence result available.")}</p>
+
+                    <div class="guardrail-checks">
+                        ${
+                            dataChecks.map(item => `
+                                <span class="${item.passed ? "gate-pass" : "gate-fail"}">
+                                    ${item.passed ? "PASS" : "CHECK"} · ${esc(item.name)}
+                                </span>
+                            `).join("")
+                            || '<span class="muted">No quality checks available.</span>'
+                        }
+                    </div>
+                </div>
+
+                <div class="guardrail-card">
+                    <div class="guardrail-title">
+                        <span>ENGINEERING SAFETY GATE</span>
+                        <strong>${esc(engineeringSafety.status || "UNAVAILABLE")}</strong>
+                    </div>
+
+                    <div class="guardrail-value">
+                        ${fmt(engineeringSafety.minimum_margin_uA)}
+                        <small> µA margin</small>
+                    </div>
+
+                    <p>${esc(engineeringSafety.reason || "No engineering-limit result available.")}</p>
+
+                    <div class="guardrail-checks">
+                        <span class="${engineeringSafety.hard_failure === true ? "gate-fail" : "gate-pass"}">
+                            ${engineeringSafety.hard_failure === true ? "HARD FAIL" : "NO HARD LIMIT BREACH"}
+                        </span>
+                        <span>
+                            ${Number(engineeringSafety.observations_checked || 0)} early observation(s) checked
+                        </span>
+                        ${
+                            safetyFailures.length
+                                ? `<span class="gate-fail">${safetyFailures.length} hard failure(s)</span>`
+                                : ""
+                        }
+                    </div>
+                </div>
+
+            </div>
+        `;
+
+
+        const reliabilityRisk = a.reliability_risk || {};
+        const riskScore = reliabilityRisk.reliability_risk_score;
+        const riskAction = reliabilityRisk.unified_action || "HOLD";
+        const riskBand = reliabilityRisk.risk_band || "INDETERMINATE";
+        const evidenceCompleteness = reliabilityRisk.evidence_completeness_pct;
+        const forecastUtil = reliabilityRisk.forecast_limit_utilization_pct;
+
+        $("#riskPanel").innerHTML = `
+            <div class="risk-engine-card">
+                <div class="risk-engine-head">
+                    <div>
+                        <span>UNIFIED RELIABILITY RISK ENGINE</span>
+                        <strong>${esc(riskAction)}</strong>
+                    </div>
+                    <div class="risk-score">
+                        ${riskScore == null ? "—" : fmt(riskScore)}
+                        <small>${riskScore == null ? "" : "/100"}</small>
+                    </div>
+                </div>
+
+                <div class="risk-engine-grid">
+                    <div>
+                        <b>RISK BAND</b>
+                        <span>${esc(riskBand)}</span>
+                    </div>
+                    <div>
+                        <b>EVIDENCE COMPLETENESS</b>
+                        <span>${fmt(evidenceCompleteness)}%</span>
+                    </div>
+                    <div>
+                        <b>FORECAST / LIMIT</b>
+                        <span>${forecastUtil == null ? "—" : `${fmt(forecastUtil)}%`}</span>
+                    </div>
+                    <div>
+                        <b>SAFETY OVERRIDE</b>
+                        <span>${reliabilityRisk.safety_override === true ? "ACTIVE" : "NO"}</span>
+                    </div>
+                </div>
+
+                <p>${esc(reliabilityRisk.reason || "No unified reliability result available.")}</p>
+                <p class="muted">
+                    The risk score is a transparent QA prioritisation index, not a calibrated probability of failure.
+                    Data-trust and hard engineering limits always take precedence over ML evidence.
+                </p>
+            </div>
+        `;
+
+        const explanation = a.explanation || {};
+        const reasonCodes = explanation.reason_codes || [];
+        const decisionPath = explanation.decision_path || [];
+
+        $("#explanationPanel").innerHTML = `
+            <div class="explainability-card">
+                <div class="explainability-head">
+                    <div>
+                        <span>EXPLAINABLE QA DECISION</span>
+                        <strong>${esc(explanation.primary_reason_code || "NO-CODE")}</strong>
+                    </div>
+                    <div class="explainability-action">
+                        ${esc(explanation.recommended_action || riskAction)}
+                    </div>
+                </div>
+
+                <div class="primary-reason">
+                    <b>${esc(explanation.primary_reason_title || "Decision rationale")}</b>
+                    <p>${esc(explanation.primary_reason || reliabilityRisk.reason || "No explanation available.")}</p>
+                </div>
+
+                <div class="reason-code-list">
+                    ${reasonCodes.map(r => `
+                        <div class="reason-code-item reason-${String(r.severity || "info").toLowerCase()}">
+                            <div class="reason-code-meta">
+                                <code>${esc(r.code || "—")}</code>
+                                <span>${esc(r.source || "—")}</span>
+                                <em>${esc(r.severity || "—")}</em>
+                            </div>
+                            <b>${esc(r.title || "Reason")}</b>
+                            <p>${esc(r.detail || "")}</p>
+                        </div>
+                    `).join("") || `<p class="muted">No ranked reason codes available.</p>`}
+                </div>
+
+                <div class="decision-path">
+                    ${decisionPath.map(step => `
+                        <div>
+                            <span>${esc(step.layer || "—")}</span>
+                            <b>${esc(step.status || "—")}</b>
+                            <em>${esc(step.action || "—")}</em>
+                        </div>
+                    `).join("")}
+                </div>
+
+                <p class="muted">
+                    Deterministic reason-code hierarchy. No LLM is used to create or change the recommendation.
+                </p>
+            </div>
+        `;
 
         $("#comparisonPanel").innerHTML = `
             <div class="compare">
 
                 <div>
-
-                    <span>
-                        ANALYTICAL
-                    </span>
-
+                    <span>GENERIC ANALYTICAL</span>
                     <strong>
                         ${fmt(a.score)}
                         <small>/100</small>
                     </strong>
-
-                    <em>
-                        ${esc(a.state)}
-                    </em>
-
+                    <em>${esc(a.state)}</em>
                 </div>
 
+                <div>
+                    <span>MODULE A · DYNAMIC ANOMALY</span>
+                    <strong class="module-a-action">
+                        ${esc(moduleAAction)}
+                    </strong>
+                    <em>
+                        ${
+                            moduleAAvailable
+                                ? "Original 24h anomaly engine"
+                                : "Inference unavailable"
+                        }
+                    </em>
+                </div>
 
                 <div>
-
-                    <span>
-                        ORIGINAL SPARK ML
-                    </span>
-
+                    <span>MODULE B · 168h FORECAST</span>
                     <strong>
                         ${fmt(prediction)}
-                        <small> µA @ 168h</small>
+                        <small> µA</small>
                     </strong>
-
                     <em>
                         ${esc(
                             modelName ||
                             "No inference"
                         )}
                     </em>
-
                 </div>
 
             </div>
 
 
-            <div class="model-status">
+            <div class="model-status module-a-status">
+                <b>
+                    ${
+                        moduleAAvailable
+                            ? "ORIGINAL SPARK MODULE-A DYNAMIC ANOMALY PIPELINE"
+                            : "MODULE-A INFERENCE UNAVAILABLE"
+                    }
+                </b>
 
+                <p>
+                    ${esc(moduleAReason)}
+                </p>
+            </div>
+
+
+            <div class="ml-details module-a-details">
+
+                <div class="eitem">
+                    <b>IR @ 0h</b>
+                    <span>${fmt(ir0)} µA</span>
+                </div>
+
+                <div class="eitem">
+                    <b>IR @ 24h</b>
+                    <span>${fmt(ir24)} µA</span>
+                </div>
+
+                <div class="eitem">
+                    <b>WITHIN-LOT RISK</b>
+                    <span>${fmt(withinLot)}</span>
+                </div>
+
+                <div class="eitem">
+                    <b>HISTORICAL RISK</b>
+                    <span>${fmt(historicalRisk)}</span>
+                </div>
+
+                <div class="eitem">
+                    <b>LOT-SHIFT RISK</b>
+                    <span>${fmt(lotShift)}</span>
+                </div>
+
+                <div class="eitem">
+                    <b>BATCH-SLOPE SHIFT</b>
+                    <span>${fmt(batchShift)}</span>
+                </div>
+
+                <div class="eitem">
+                    <b>ISOLATION FOREST SCORE</b>
+                    <span>${fmt(isolationScore)}</span>
+                </div>
+
+                <div class="eitem">
+                    <b>ISOLATION FOREST</b>
+                    <span>
+                        ${
+                            isolationOutlier == null
+                                ? "—"
+                                : (isolationOutlier ? "OUTLIER" : "NOMINAL")
+                        }
+                    </span>
+                </div>
+
+                <div class="eitem">
+                    <b>STATIC LIMIT @ 24h</b>
+                    <span>
+                        ${
+                            staticLimitFailed == null
+                                ? "—"
+                                : (staticLimitFailed ? "FAILED" : "PASSED")
+                        }
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div class="model-status module-b-status">
                 <b>
                     ${
                         mlAvailable
-                            ? "ORIGINAL SPARK MODULE-B ML PIPELINE"
-                            : "ML INFERENCE UNAVAILABLE"
+                            ? "ORIGINAL SPARK MODULE-B DRIFT FORECAST PIPELINE"
+                            : "MODULE-B INFERENCE UNAVAILABLE"
                     }
                 </b>
 
                 <p>
                     ${esc(
-                        m.message ||
-                        "No validated ML inference was returned for this record."
+                        mb.message ||
+                        "No validated Module-B inference was returned for this component."
                     )}
                 </p>
-
             </div>
 
 
@@ -2083,77 +2447,56 @@ async function loadAssessment() {
 
                 <div class="eitem">
                     <b>168h PREDICTION</b>
-                    <span>
-                        ${fmt(prediction)} µA
-                    </span>
+                    <span>${fmt(prediction)} µA</span>
                 </div>
 
                 <div class="eitem">
                     <b>5% LOWER</b>
-                    <span>
-                        ${fmt(lower)} µA
-                    </span>
+                    <span>${fmt(lower)} µA</span>
                 </div>
 
                 <div class="eitem">
                     <b>50% MEDIAN</b>
-                    <span>
-                        ${fmt(median)} µA
-                    </span>
+                    <span>${fmt(median)} µA</span>
                 </div>
 
                 <div class="eitem">
                     <b>95% UPPER</b>
-                    <span>
-                        ${fmt(upper)} µA
-                    </span>
+                    <span>${fmt(upper)} µA</span>
                 </div>
 
                 <div class="eitem">
                     <b>INTERVAL WIDTH</b>
-                    <span>
-                        ${fmt(interval)} µA
-                    </span>
+                    <span>${fmt(interval)} µA</span>
                 </div>
 
                 <div class="eitem">
                     <b>PREDICTED SLOPE</b>
-                    <span>
-                        ${fmt(slope)} µA/h
-                    </span>
+                    <span>${fmt(slope)} µA/h</span>
                 </div>
 
                 <div class="eitem">
                     <b>SAFETY MARGIN</b>
-                    <span>
-                        ${fmt(safety)} µA
-                    </span>
+                    <span>${fmt(safety)} µA</span>
                 </div>
 
                 <div class="eitem">
                     <b>CONFORMAL UPPER</b>
-                    <span>
-                        ${fmt(conformal)} µA
-                    </span>
+                    <span>${fmt(conformal)} µA</span>
                 </div>
 
                 <div class="eitem">
-                    <b>ACTUAL 168h</b>
-                    <span>
-                        ${fmt(actual)} µA
-                    </span>
+                    <b>ACTUAL 168h (EVAL)</b>
+                    <span>${fmt(actual)} µA</span>
                 </div>
 
                 <div class="eitem">
-                    <b>ABS. ERROR</b>
-                    <span>
-                        ${fmt(error)} µA
-                    </span>
+                    <b>ABS. ERROR (EVAL)</b>
+                    <span>${fmt(error)} µA</span>
                 </div>
 
             </div>
         `;
-
 
         /* -----------------------------------------------------
            ENGINEERING COMMENT
@@ -2180,16 +2523,19 @@ async function loadAssessment() {
 
         $("#inspectorPanel").innerHTML = `
             <p class="muted">
-                Record ${a.record_index + 1}
+                ${a.inspection_mode === "component" ? "Component" : "Record"}
+                ${a.inspection_index + 1}
+                ${a.component_id ? `· ${esc(a.component_id)}` : ""}
                 is ready for human disposition.
                 The inspector may agree with the machine
                 evidence or override it with a documented reason.
             </p>
 
             <p class="muted">
-                Statistical evidence and the original SPARK
-                ML pipeline are presented as decision-support
-                evidence only.
+                Data Trust, Engineering Safety, statistical evidence,
+                original SPARK Module-A anomaly evidence and Module-B drift
+                forecasting are presented as decision-support evidence.
+                A hard engineering-limit failure is non-negotiable.
             </p>
         `;
 
@@ -2218,7 +2564,8 @@ function renderQAPanel() {
                     "RETEST",
                     "HOLD",
                     "REJECT",
-                    "QUARANTINE"
+                    "QUARANTINE",
+                    "ABSTAIN"
                 ]
                 .map(x => `
                     <button
@@ -2280,6 +2627,26 @@ function renderQAPanel() {
 
         </div>
 
+        <div id="overrideGovernance" class="override-governance" style="display:none">
+            <label>OVERRIDE REASON CODE</label>
+            <select id="overrideReasonCode">
+                <option value="">Select controlled reason</option>
+                <option value="QA-OVR-001">QA-OVR-001 · Verified measurement context</option>
+                <option value="QA-OVR-002">QA-OVR-002 · Tester or instrument evidence</option>
+                <option value="QA-OVR-003">QA-OVR-003 · Verified component history</option>
+                <option value="QA-OVR-004">QA-OVR-004 · Approved engineering review</option>
+                <option value="QA-OVR-005">QA-OVR-005 · Controlled procedure requirement</option>
+                <option value="QA-OVR-006">QA-OVR-006 · Suspected model or threshold limitation</option>
+                <option value="QA-OVR-007">QA-OVR-007 · Other controlled exception</option>
+            </select>
+            <textarea
+                id="overrideJustification"
+                minlength="20"
+                placeholder="Mandatory override justification (minimum 20 characters)..."
+            ></textarea>
+            <p class="muted">Overrides are classified and retained as QA feedback. Hard engineering failures cannot be relaxed below REJECT/QUARANTINE, and Data Trust RETEST cannot become ACCEPT.</p>
+        </div>
+
 
         <textarea
             id="comment"
@@ -2304,11 +2671,14 @@ function renderQAPanel() {
             S.qaResponse =
                 e.target.value;
 
-            $("#overrideAction").style.display =
-                e.target.value === "OVERRIDE"
-                    ? "block"
-                    : "none";
+            const isOverride = e.target.value === "OVERRIDE";
+            $("#overrideAction").style.display = isOverride ? "block" : "none";
+            $("#overrideGovernance").style.display = isOverride ? "grid" : "none";
         };
+
+    const initialOverride = S.qaResponse === "OVERRIDE";
+    $("#overrideAction").style.display = initialOverride ? "block" : "none";
+    $("#overrideGovernance").style.display = initialOverride ? "grid" : "none";
 }
 
 
@@ -2347,6 +2717,32 @@ window.saveQA = async () => {
         return;
     }
 
+    const machineRecommendation =
+        S.assessment.reliability_unified_action ||
+        S.assessment.explanation?.recommended_action ||
+        S.qaAction;
+
+    const overrideReasonCode =
+        $("#overrideReasonCode")?.value || "";
+
+    const overrideJustification =
+        $("#overrideJustification")?.value.trim() || "";
+
+    if (response === "OVERRIDE" && !overrideReasonCode) {
+        toast("Select an override reason code.");
+        return;
+    }
+
+    if (response === "OVERRIDE" && overrideJustification.length < 20) {
+        toast("Override justification must contain at least 20 characters.");
+        return;
+    }
+
+    if (response !== "OVERRIDE" && S.qaAction !== machineRecommendation) {
+        toast("A different QA action requires OVERRIDE governance.");
+        return;
+    }
+
     try {
         await api(
             `/qa/${S.active.dataset_id}`,
@@ -2360,8 +2756,14 @@ window.saveQA = async () => {
 
                 body: JSON.stringify({
 
-                    record_index:
+                    inspection_index:
                         S.record,
+
+                    record_index:
+                        S.assessment.record_index,
+
+                    inspection_mode:
+                        S.assessment.inspection_mode,
 
                     action:
                         S.qaAction,
@@ -2371,8 +2773,29 @@ window.saveQA = async () => {
                     override_action:
                         overrideAction,
 
+                    machine_recommended_action:
+                        machineRecommendation,
+
+                    override_reason_code:
+                        overrideReasonCode,
+
+                    override_justification:
+                        overrideJustification,
+
                     comment:
                         $("#comment").value,
+
+                    component_id:
+                        S.assessment.component_id,
+
+                    measurement_time_h:
+                        S.assessment.measurement_time_h,
+
+                    lot_id:
+                        S.assessment.lot_id,
+
+                    burnin_batch_id:
+                        S.assessment.burnin_batch_id,
 
                     analytical_score:
                         S.assessment.score,
@@ -2380,17 +2803,146 @@ window.saveQA = async () => {
                     analytical_state:
                         S.assessment.state,
 
-                    ai_score:
-                        S.assessment.ai_score,
+                    analytical_contributors:
+                        S.assessment.contributors || [],
 
-                    ai_prediction:
-                        S.assessment.ai_prediction,
+                    data_confidence_status:
+                        S.assessment.data_confidence_status,
 
-                    ai_confidence:
-                        S.assessment.ai_confidence,
+                    data_confidence_score_pct:
+                        S.assessment.data_confidence_score_pct,
+
+                    data_confidence_action:
+                        S.assessment.data_confidence_action,
+
+                    data_confidence_snapshot:
+                        S.assessment.data_confidence || {},
+
+                    engineering_safety_status:
+                        S.assessment.engineering_safety_status,
+
+                    engineering_safety_action:
+                        S.assessment.engineering_safety_action,
+
+                    engineering_safety_hard_failure:
+                        S.assessment.engineering_safety_hard_failure,
+
+                    engineering_safety_minimum_margin_uA:
+                        S.assessment.engineering_safety_minimum_margin_uA,
+
+                    engineering_safety_snapshot:
+                        S.assessment.engineering_safety || {},
+
+                    reliability_risk_score:
+                        S.assessment.reliability_risk_score,
+
+                    reliability_risk_band:
+                        S.assessment.reliability_risk_band,
+
+                    reliability_evidence_completeness_pct:
+                        S.assessment.reliability_evidence_completeness_pct,
+
+                    reliability_unified_action:
+                        S.assessment.reliability_unified_action,
+
+                    reliability_reason:
+                        S.assessment.reliability_reason,
+
+                    reliability_risk_snapshot:
+                        S.assessment.reliability_risk || {},
+
+                    primary_reason_code:
+                        S.assessment.primary_reason_code,
+
+                    primary_reason_title:
+                        S.assessment.primary_reason_title,
+
+                    primary_reason:
+                        S.assessment.primary_reason,
+
+                    reason_codes:
+                        S.assessment.reason_codes || [],
+
+                    decision_path:
+                        S.assessment.decision_path || [],
+
+                    explanation_snapshot:
+                        S.assessment.explanation || {},
+
+                    module_a_available:
+                        S.assessment.module_a_available,
+
+                    module_a_action:
+                        S.assessment.module_a_action,
+
+                    module_a_primary_reason:
+                        S.assessment.module_a_primary_reason,
+
+                    module_a_within_lot_risk_score:
+                        S.assessment.module_a_within_lot_risk_score,
+
+                    module_a_historical_risk_score:
+                        S.assessment.module_a_historical_risk_score,
+
+                    module_a_lot_shift_risk_score:
+                        S.assessment.module_a_lot_shift_risk_score,
+
+                    module_a_batch_slope_shift_score:
+                        S.assessment.module_a_batch_slope_shift_score,
+
+                    module_a_isolation_forest_raw_score:
+                        S.assessment.module_a_isolation_forest_raw_score,
+
+                    module_a_isolation_forest_is_outlier:
+                        S.assessment.module_a_isolation_forest_is_outlier,
+
+                    module_a_static_limit_failed_at_24h:
+                        S.assessment.module_a_static_limit_failed_at_24h,
+
+                    ai_available:
+                        S.assessment.ai_available,
+
+                    ai_model:
+                        S.assessment.ai_model,
+
+                    ai_prediction_168h_uA:
+                        S.assessment.ai_prediction_168h_uA,
+
+                    ai_prediction_lower_05_uA:
+                        S.assessment.ai_prediction_lower_05_uA,
+
+                    ai_prediction_median_50_uA:
+                        S.assessment.ai_prediction_median_50_uA,
+
+                    ai_prediction_upper_95_uA:
+                        S.assessment.ai_prediction_upper_95_uA,
+
+                    ai_prediction_interval_width_uA:
+                        S.assessment.ai_prediction_interval_width_uA,
+
+                    ai_predicted_slope_24_168_uA_per_h:
+                        S.assessment.ai_predicted_slope_24_168_uA_per_h,
+
+                    ai_safety_margin_uA:
+                        S.assessment.ai_safety_margin_uA,
+
+                    ai_conformal_safety_upper_uA:
+                        S.assessment.ai_conformal_safety_upper_uA,
+
+                    ai_actual_ir_168h_uA:
+                        S.assessment.ai_actual_ir_168h_uA,
+
+                    ai_absolute_prediction_error_uA:
+                        S.assessment.ai_absolute_prediction_error_uA,
 
                     ai_comment:
-                        S.assessment.qa_comment
+                        S.assessment.qa_comment,
+
+                    assessment_source:
+                        S.assessment.assessment_source || {},
+
+                    model_snapshot:
+                        S.assessment.model || {}
 
                 })
             }
@@ -2412,20 +2964,7 @@ window.saveQA = async () => {
    HISTORY
 ========================================================= */
 
-/*
- * Important:
- * The HTML currently contains:
- *
- * <section id="history">
- *     <div class="panel" id="history"></div>
- * </section>
- *
- * Both elements therefore have the same ID.
- *
- * We intentionally resolve the INNER panel here rather than
- * changing your existing HTML again. This prevents the
- * history section itself from being accidentally overwritten.
- */
+/* The traceability table is rendered into #historyTable. */
 
 function getHistoryContainer() {
     return $("#historyTable");
@@ -2435,12 +2974,40 @@ async function loadHistory() {
     if (!S.active) return;
 
     try {
-        const x = await api(
-            `/qa/${S.active.dataset_id}`
-        );
+        const [x, integrity, feedback] = await Promise.all([
+            api(`/qa/${S.active.dataset_id}`),
+            api(`/qa/${S.active.dataset_id}/integrity`),
+            api(`/qa/${S.active.dataset_id}/feedback-summary`)
+        ]);
 
         const container =
             getHistoryContainer();
+
+        const integrityContainer = $("#ledgerIntegrity");
+        if (integrityContainer) {
+            const ok = integrity.integrity_ok === true;
+            integrityContainer.innerHTML = `
+                <div class="ledger-integrity ${ok ? "integrity-ok" : "integrity-fail"}">
+                    <div>
+                        <b>LEDGER INTEGRITY: ${esc(integrity.status || "UNKNOWN")}</b>
+                        <span>${Number(integrity.entries || 0)} entries · ${Number(integrity.verified_v7_entries || 0)} governed v7 · ${Number(integrity.verified_v6_entries || 0)} sealed v6 · ${Number(integrity.legacy_entries || 0)} legacy</span>
+                    </div>
+                    <code>SHA-256</code>
+                </div>
+            `;
+        }
+
+        const feedbackContainer = $("#qaFeedbackSummary");
+        if (feedbackContainer) {
+            feedbackContainer.innerHTML = `
+                <div class="qa-feedback-summary">
+                    <div><b>QA FEEDBACK GOVERNANCE</b><span>${Number(feedback.governed_entries || 0)} governed decisions</span></div>
+                    <div><b>${Number(feedback.overrides || 0)}</b><span>Overrides</span></div>
+                    <div><b>${fmt(feedback.override_rate_pct || 0)}%</b><span>Override rate</span></div>
+                    <div><b>${Number(feedback.model_threshold_review_flags || 0)}</b><span>Model/threshold review flags</span></div>
+                </div>
+            `;
+        }
 
         if (!container) {
             return;
@@ -2453,11 +3020,22 @@ async function loadHistory() {
 
                         <tr>
                             <th>TIME</th>
-                            <th>RECORD</th>
+                            <th>INSPECTION</th>
+                            <th>SOURCE ROW</th>
+                            <th>COMPONENT</th>
                             <th>ANALYTICAL</th>
-                            <th>AI</th>
+                            <th>DATA TRUST</th>
+                            <th>SAFETY</th>
+                            <th>MODULE A</th>
+                            <th>168h PRED.</th>
+                            <th>RISK</th>
+                            <th>RECOMMENDED</th>
+                            <th>PRIMARY REASON</th>
+                            <th>LEDGER HASH</th>
                             <th>ACTION</th>
                             <th>RESPONSE</th>
+                            <th>DISAGREEMENT</th>
+                            <th>OVERRIDE REASON</th>
                             <th>COMMENT</th>
                         </tr>
 
@@ -2478,9 +3056,26 @@ async function loadHistory() {
 
                                         <td>
                                             ${
-                                                Number(
-                                                    i.record_index
-                                                ) + 1
+                                                Number.isFinite(Number(i.inspection_index))
+                                                    ? Number(i.inspection_index) + 1
+                                                    : "—"
+                                            }
+                                        </td>
+
+                                        <td>
+                                            ${
+                                                Number.isFinite(Number(i.record_index))
+                                                    ? Number(i.record_index) + 1
+                                                    : "—"
+                                            }
+                                        </td>
+
+                                        <td>
+                                            ${
+                                                esc(
+                                                    i.component_id ||
+                                                    "—"
+                                                )
                                             }
                                         </td>
 
@@ -2494,10 +3089,67 @@ async function loadHistory() {
 
                                         <td>
                                             ${
-                                                fmt(
-                                                    i.ai_score
+                                                esc(
+                                                    i.data_confidence_status ||
+                                                    "—"
                                                 )
                                             }
+                                            ${
+                                                i.data_confidence_score_pct != null
+                                                    ? ` · ${fmt(i.data_confidence_score_pct)}%`
+                                                    : ""
+                                            }
+                                        </td>
+
+                                        <td>
+                                            ${
+                                                esc(
+                                                    i.engineering_safety_status ||
+                                                    "—"
+                                                )
+                                            }
+                                        </td>
+
+                                        <td>
+                                            ${
+                                                esc(
+                                                    i.module_a_action ||
+                                                    "—"
+                                                )
+                                            }
+                                        </td>
+
+                                        <td>
+                                            ${
+                                                fmt(
+                                                    i.ai_prediction_168h_uA
+                                                )
+                                            }
+                                        </td>
+
+                                        <td>
+                                            ${
+                                                i.reliability_risk_score == null
+                                                    ? esc(i.reliability_risk_band || "—")
+                                                    : `${fmt(i.reliability_risk_score)} · ${esc(i.reliability_risk_band || "—")}`
+                                            }
+                                        </td>
+
+                                        <td>
+                                            ${
+                                                esc(
+                                                    i.reliability_unified_action ||
+                                                    "—"
+                                                )
+                                            }
+                                        </td>
+
+                                        <td>
+                                            <code>${esc(i.primary_reason_code || "LEGACY")}</code>
+                                        </td>
+
+                                        <td title="${esc(i.entry_hash || "Legacy/unsealed entry")}">
+                                            <code>${esc(i.entry_hash ? i.entry_hash.slice(0, 12) : "—")}</code>
                                         </td>
 
                                         <td>
@@ -2515,6 +3167,14 @@ async function loadHistory() {
                                                     "—"
                                                 )
                                             }
+                                        </td>
+
+                                        <td>
+                                            ${esc(i.disagreement_class || "LEGACY")}
+                                        </td>
+
+                                        <td title="${esc(i.override_justification || "")}">
+                                            <code>${esc(i.override_reason_code || "—")}</code>
                                         </td>
 
                                         <td>
@@ -2595,7 +3255,7 @@ if (nextButton) {
         if (
             S.active &&
             S.record <
-                S.active.rows - 1
+                (S.active.inspection_count || S.active.rows) - 1
         ) {
             S.record++;
             loadAssessment();

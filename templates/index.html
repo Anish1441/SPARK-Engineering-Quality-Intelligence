@@ -6,7 +6,7 @@
 
 <title>SPARK — Engineering Quality Intelligence</title>
 
-<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="{{ url_for('static', filename='vendor/plotly.min.js') }}"></script>
 
 <link rel="stylesheet" href="/static/css/style.css">
 </head>
@@ -885,15 +885,19 @@
 
                         <div>
                             <b>
-                                AI / ANALYTICAL COMPARISON
+                                SPARK RELIABILITY EVIDENCE
                             </b>
 
                             <span>
-                                Decision-support evidence
+                                Original Module-A + Module-B decision support
                             </span>
                         </div>
 
                     </div>
+
+                    <div id="guardrailPanel"></div>
+                    <div id="riskPanel"></div>
+                    <div id="explanationPanel"></div>
 
                     <div id="comparisonPanel"></div>
 
@@ -1003,6 +1007,9 @@
                     </div>
 
                 </div>
+
+                <div id="ledgerIntegrity"></div>
+                <div id="qaFeedbackSummary"></div>
 
                 <div
                     id="historyTable"
@@ -1124,7 +1131,7 @@
 </script>
 
 
-<script src="/static/js/app.js?v=7.1.0"></script>
+<script src="/static/js/app.js?v=7.6.0"></script>
 
 </body>
 </html>

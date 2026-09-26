@@ -1069,7 +1069,7 @@ p {
 .qa-grid.lower {
 
     grid-template-columns:
-        1fr 1fr;
+        repeat(3,minmax(0,1fr));
 
     margin-top:
         15px;
@@ -1641,6 +1641,38 @@ select:focus {
         7px 0 0;
 }
 
+
+
+
+.module-a-action {
+
+    font-size:
+        20px !important;
+
+    line-height:
+        1.15;
+
+    overflow-wrap:
+        anywhere;
+}
+
+.module-a-status {
+
+    padding-top:
+        2px;
+}
+
+.module-b-status {
+
+    margin-top:
+        16px;
+
+    padding-top:
+        12px;
+
+    border-top:
+        1px solid var(--line);
+}
 
 /* =========================================================
    QA ACTIONS
@@ -2799,6 +2831,11 @@ textarea:focus {
             1fr;
     }
 
+    .compare {
+        grid-template-columns:
+            1fr;
+    }
+
     .cards {
         grid-template-columns:
             repeat(2,1fr);
@@ -2889,4 +2926,407 @@ textarea:focus {
             none;
     }
 
+}
+/* =========================================================
+   PHASE 7.3 — DATA TRUST + ENGINEERING SAFETY GUARDRAILS
+========================================================= */
+
+.guardrail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 8px 0 14px;
+}
+
+.guardrail-card {
+    background: var(--panel2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+}
+
+.guardrail-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.guardrail-title span {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 0.11em;
+}
+
+.guardrail-title strong {
+    color: var(--text-strong);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+}
+
+.guardrail-value {
+    margin-top: 9px;
+    color: var(--text-strong);
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.guardrail-value small {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.guardrail-card p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.55;
+    min-height: 34px;
+}
+
+.guardrail-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.guardrail-checks span {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 7px;
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 0.04em;
+}
+
+.guardrail-checks .gate-pass {
+    color: var(--text-strong);
+}
+
+.guardrail-checks .gate-fail {
+    color: #d95f59;
+    border-color: rgba(217,95,89,0.45);
+}
+
+@media (max-width: 900px) {
+    .guardrail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   PHASE 7.4 — UNIFIED RELIABILITY RISK ENGINE
+========================================================= */
+
+#riskPanel {
+    margin-top: 14px;
+    margin-bottom: 14px;
+}
+
+.risk-engine-card {
+    border: 1px solid #222;
+    border-radius: 10px;
+    padding: 16px;
+    background: #fff;
+}
+
+.risk-engine-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.risk-engine-head span {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.risk-engine-head strong {
+    display: block;
+    margin-top: 5px;
+    font-size: 22px;
+}
+
+.risk-score {
+    min-width: 105px;
+    text-align: right;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.risk-score small {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.risk-engine-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.risk-engine-grid > div {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.risk-engine-grid b,
+.risk-engine-grid span {
+    display: block;
+}
+
+.risk-engine-grid b {
+    font-size: 10px;
+    letter-spacing: .05em;
+}
+
+.risk-engine-grid span {
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.risk-engine-card > p {
+    margin: 12px 0 0;
+}
+
+@media (max-width: 900px) {
+    .risk-engine-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .risk-engine-head {
+        display: block;
+    }
+
+    .risk-score {
+        text-align: left;
+        margin-top: 10px;
+    }
+
+    .risk-engine-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   PHASE 7.5 — EXPLAINABLE QA + TRACEABILITY
+========================================================= */
+
+.explainability-card {
+    margin-top: 14px;
+    border: 1px solid #cfcfcf;
+    background: #fff;
+    padding: 16px;
+}
+
+.explainability-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid #e6e6e6;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+}
+
+.explainability-head span,
+.explainability-head strong,
+.explainability-action {
+    display: block;
+}
+
+.explainability-head span {
+    font-size: 11px;
+    letter-spacing: .08em;
+    color: #666;
+}
+
+.explainability-head strong {
+    margin-top: 4px;
+    font-size: 17px;
+}
+
+.explainability-action {
+    font-weight: 800;
+    border: 1px solid #222;
+    padding: 7px 10px;
+    white-space: nowrap;
+}
+
+.primary-reason p,
+.reason-code-item p {
+    margin: 5px 0 0;
+    line-height: 1.45;
+}
+
+.reason-code-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.reason-code-item {
+    border-left: 4px solid #777;
+    background: #fafafa;
+    padding: 10px 12px;
+}
+
+.reason-critical { border-left-color: #111; }
+.reason-high { border-left-color: #444; }
+.reason-elevated { border-left-color: #777; }
+.reason-low { border-left-color: #aaa; }
+
+.reason-code-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 11px;
+}
+
+.reason-code-meta code {
+    font-weight: 800;
+}
+
+.reason-code-meta span,
+.reason-code-meta em {
+    color: #666;
+    font-style: normal;
+}
+
+.decision-path {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 14px;
+}
+
+.decision-path > div {
+    border: 1px solid #ddd;
+    padding: 8px;
+    min-width: 0;
+}
+
+.decision-path span,
+.decision-path b,
+.decision-path em {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.decision-path span {
+    font-size: 10px;
+    color: #666;
+}
+
+.decision-path b {
+    margin-top: 3px;
+    font-size: 12px;
+}
+
+.decision-path em {
+    margin-top: 3px;
+    font-size: 11px;
+    font-style: normal;
+}
+
+.ledger-integrity {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid #cfcfcf;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    background: #fafafa;
+}
+
+.ledger-integrity b,
+.ledger-integrity span {
+    display: block;
+}
+
+.ledger-integrity span {
+    color: #666;
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+.integrity-fail {
+    border-width: 2px;
+    border-color: #222;
+}
+
+@media (max-width: 900px) {
+    .decision-path {
+        grid-template-columns: 1fr;
+    }
+
+    .explainability-head,
+    .ledger-integrity {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+/* =========================================================
+   PHASE 7.6 — QA OVERRIDE GOVERNANCE + FEEDBACK LEDGER
+========================================================= */
+
+.override-governance {
+    gap: 10px;
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid var(--border, #3a3a3a);
+    border-radius: 8px;
+}
+
+.override-governance label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.override-governance select,
+.override-governance textarea {
+    width: 100%;
+}
+
+.qa-feedback-summary {
+    display: grid;
+    grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(120px, 1fr));
+    gap: 10px;
+    margin: 10px 0 14px;
+}
+
+.qa-feedback-summary > div {
+    border: 1px solid var(--border, #3a3a3a);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.qa-feedback-summary span {
+    font-size: 11px;
+    opacity: .72;
+}
+
+@media (max-width: 900px) {
+    .qa-feedback-summary {
+        grid-template-columns: 1fr 1fr;
+    }
 }

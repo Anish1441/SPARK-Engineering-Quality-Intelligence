@@ -1,0 +1,34 @@
+SPARK Phase 7 — FINAL CLOSURE / HANDOFF
+
+Functional baseline:
+- Data Trust Gate
+- Engineering Safety Gate
+- original Phase-1 Module A dynamic anomaly inference
+- original Phase-1 Module B 168h forecast inference
+- Unified Reliability Risk Engine
+- deterministic Explainable QA Decision
+- hash-sealed local QA traceability ledger
+- governed QA overrides and feedback summary
+
+Closure-only changes:
+- final README handoff status and closure commands
+- final demo path / claim guardrails
+- concise DEMO_CHECKLIST.md
+
+Local cleanup required before commit:
+- delete obsolete core\\pipeline_adapter.py.bak
+- do not stage .venv/, data/, __pycache__/, .pytest_cache/ or local backup folders
+
+Regression target on the user's machine:
+- Python compile: PASS
+- JavaScript syntax: PASS
+- pytest: 39 passed (or higher if additional tests exist), 0 failed
+- git diff --check: no whitespace errors; CRLF conversion warnings are informational
+- original Phase-1 Module A + Module B status: available
+
+Final Git sequence:
+- git add -A
+- inspect git status and git diff --cached --stat
+- commit
+- push origin main
+- confirm clean working tree and origin/main alignment
