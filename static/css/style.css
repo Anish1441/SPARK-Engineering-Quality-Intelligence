@@ -3481,3 +3481,14 @@ textarea:focus {
         align-items: stretch;
     }
 }
+
+
+/* === SPARK light-card contrast fix === */
+.white-card, .risk-summary-card, .explainability-card, .qa-decision-card, .decision-trace-card, .risk-engine-card, .evidence-card, .reason-card, .assessment-card { color:#1f2937 !important; }
+.white-card *, .risk-summary-card *, .explainability-card *, .qa-decision-card *, .decision-trace-card *, .risk-engine-card *, .evidence-card *, .reason-card *, .assessment-card * { color:#1f2937; }
+.white-card .muted, .risk-summary-card .muted, .explainability-card .muted, .qa-decision-card .muted, .decision-trace-card .muted, .risk-engine-card .muted, .evidence-card .muted, .reason-card .muted, .assessment-card .muted { color:#6b7280 !important; }
+.white-card .label, .risk-summary-card .label, .explainability-card .label, .qa-decision-card .label, .decision-trace-card .label, .risk-engine-card .label, .evidence-card .label, .reason-card .label, .assessment-card .label { color:#4b5563 !important; }
+
+/* Light background fallback */
+[style*="background: white"], [style*="background:#fff"], [style*="background: #fff"], [style*="background-color: white"], [style*="background-color:#fff"], [style*="background-color: #fff"] { color:#1f2937 !important; }
+[style*="background: white"] *, [style*="background:#fff"] *, [style*="background: #fff"] *, [style*="background-color: white"] *, [style*="background-color:#fff"] *, [style*="background-color: #fff"] * { color:#1f2937; }
