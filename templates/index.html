@@ -424,13 +424,23 @@
             Analysis
         </button>
 
-        <button data-view="qa">
+        <button data-view="model-health">
             <span>05</span>
+            Model Health
+        </button>
+
+        <button data-view="lot-intelligence">
+            <span>06</span>
+            Lot Intelligence
+        </button>
+
+        <button data-view="qa">
+            <span>07</span>
             QA Inspector
         </button>
 
         <button data-view="history">
-            <span>06</span>
+            <span>08</span>
             Decision History
         </button>
 
@@ -809,6 +819,114 @@
 
 
         <!-- =================================================
+             MODEL HEALTH · PHASE 8
+        ================================================= -->
+
+        <section
+            id="model-health"
+            class="view"
+        >
+
+            <div class="heading">
+                <div>
+                    <label>
+                        TRUSTWORTHY MODEL LIFECYCLE
+                    </label>
+                    <h2>
+                        Model Health
+                    </h2>
+                    <p>
+                        Verify model contracts, applicability, population drift
+                        and discovered model artifacts before reliability evidence
+                        is used for disposition.
+                    </p>
+                </div>
+            </div>
+
+            <div id="modelHealthSummary" class="cards"></div>
+
+            <div class="two model-health-grid">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <b>MODEL / FEATURE REGISTRY</b>
+                            <span>Production contracts and artifact identity</span>
+                        </div>
+                        <span class="panel-index">REGISTRY</span>
+                    </div>
+                    <div id="modelRegistry"></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <b>MODEL APPLICABILITY</b>
+                            <span>Schema, checkpoint and OOD eligibility</span>
+                        </div>
+                        <span class="panel-index">OOD</span>
+                    </div>
+                    <div id="modelApplicability"></div>
+                </div>
+            </div>
+
+            <div class="panel model-health-drift">
+                <div class="panel-heading">
+                    <div>
+                        <b>DRIFT OBSERVATORY</b>
+                        <span>Training-reference vs current population snapshot</span>
+                    </div>
+                    <span class="panel-index">DRIFT</span>
+                </div>
+                <div id="modelDrift"></div>
+            </div>
+
+            <div class="panel model-health-drift">
+                <div class="panel-heading">
+                    <div>
+                        <b>CALIBRATION MONITOR</b>
+                        <span>Backtested interval coverage and governed recalibration review</span>
+                    </div>
+                    <span class="panel-index">CAL</span>
+                </div>
+                <div id="modelCalibration"></div>
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             LOT INTELLIGENCE · PHASE 9
+        ================================================= -->
+
+        <section id="lot-intelligence" class="view">
+            <div class="heading">
+                <div>
+                    <label>POPULATION RELIABILITY</label>
+                    <h2>Lot Intelligence</h2>
+                    <p>Aggregate lot/batch health and commonality evidence without claiming causality.</p>
+                </div>
+            </div>
+
+            <div id="lotHealthSummary" class="cards"></div>
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <div><b>LOT / BATCH HEALTH</b><span>Population state from existing early-life evidence</span></div>
+                    <span class="panel-index">HEALTH</span>
+                </div>
+                <div id="lotHealthTable"></div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <div><b>COMMONALITY ENGINE</b><span>Enriched attributes and feature shifts in escalated components</span></div>
+                    <span class="panel-index">ASSOCIATION</span>
+                </div>
+                <div id="commonalityPanel"></div>
+            </div>
+        </section>
+
+        <!-- =================================================
              QA INSPECTOR
         ================================================= -->
 
@@ -895,6 +1013,8 @@
 
                     </div>
 
+                    <div id="applicabilityPanel"></div>
+                    <div id="rollingForecastPanel"></div>
                     <div id="guardrailPanel"></div>
                     <div id="riskPanel"></div>
                     <div id="explanationPanel"></div>
@@ -1010,6 +1130,7 @@
 
                 <div id="ledgerIntegrity"></div>
                 <div id="qaFeedbackSummary"></div>
+                <div id="feedbackLearningQueue"></div>
 
                 <div
                     id="historyTable"
@@ -1131,7 +1252,7 @@
 </script>
 
 
-<script src="/static/js/app.js?v=7.6.0"></script>
+<script src="/static/js/app.js?v=9.0.0"></script>
 
 </body>
 </html>

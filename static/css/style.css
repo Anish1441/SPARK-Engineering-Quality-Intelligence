@@ -3330,3 +3330,154 @@ textarea:focus {
         grid-template-columns: 1fr 1fr;
     }
 }
+
+/* =========================================================
+   PHASE 8 — TRUSTWORTHY MODEL LIFECYCLE
+========================================================= */
+
+.model-health-grid {
+    margin-top: 18px;
+}
+
+.model-health-drift {
+    margin-top: 18px;
+}
+
+.model-health-note,
+.model-health-kpi,
+.phase8-evidence-card {
+    border: 1px solid var(--border, #3a3a3a);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.model-health-note {
+    display: grid;
+    gap: 5px;
+    margin-bottom: 12px;
+}
+
+.model-health-note code,
+.health-examples code {
+    font-size: 11px;
+    word-break: break-all;
+}
+
+.model-health-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 12px;
+}
+
+.model-health-kpi strong {
+    font-size: 20px;
+}
+
+.inline-health-kpi {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.health-count-grid,
+.phase8-evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.health-count-grid > div,
+.phase8-evidence-grid > div {
+    border: 1px solid var(--border, #3a3a3a);
+    border-radius: 7px;
+    padding: 9px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.health-count-grid b,
+.phase8-evidence-grid b {
+    font-size: 10px;
+    letter-spacing: .06em;
+    opacity: .72;
+}
+
+.health-examples {
+    margin-top: 12px;
+    display: grid;
+    gap: 6px;
+}
+
+.health-examples > div {
+    display: grid;
+    grid-template-columns: minmax(110px, .7fr) minmax(160px, .8fr) 2fr;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border, #3a3a3a);
+}
+
+.phase8-evidence-card {
+    margin-bottom: 12px;
+}
+
+.phase8-evidence-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
+.phase8-evidence-head span,
+.phase8-evidence-head strong,
+.phase8-evidence-head em {
+    display: block;
+}
+
+.phase8-evidence-head span {
+    font-size: 10px;
+    letter-spacing: .08em;
+    opacity: .72;
+}
+
+.phase8-evidence-head strong {
+    margin-top: 4px;
+    font-size: 18px;
+}
+
+.phase8-evidence-head em {
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: .06em;
+    border: 1px solid var(--border, #3a3a3a);
+    border-radius: 999px;
+    padding: 5px 8px;
+}
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table-wrap table {
+    min-width: 680px;
+}
+
+@media (max-width: 900px) {
+    .health-count-grid,
+    .phase8-evidence-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .health-examples > div {
+        grid-template-columns: 1fr;
+    }
+
+    .phase8-evidence-head,
+    .inline-health-kpi {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

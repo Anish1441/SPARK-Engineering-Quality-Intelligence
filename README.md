@@ -295,3 +295,116 @@ All statistical and model outputs are decision-support evidence. The final dispo
 ## Safety and data handling
 
 Runtime datasets, QA ledgers, virtual environments, secrets, logs, caches and backup files are excluded from Git. The original Phase-1 dataset and trained models are referenced in place and are not copied into this repository.
+
+## Phase 8 — Trustworthy Model Lifecycle
+
+Phase 8 extends the stable Phase-7 decision stack without replacing the original Phase-1 models. It adds four controlled capabilities:
+
+1. **Schema / Feature / Model Registry** — exposes dataset schema fingerprint, production model identity, feature contract, required checkpoints, artifact SHA-256, and discovered-but-not-promoted 96h artifacts.
+2. **Model Applicability / OOD Gate** — checks schema, required 0h/24h evidence, and robust distance from the Phase-1 training reference before Module-B evidence is authorized for the reliability decision. Missing/incompatible/OOD evidence fails closed to abstention/review.
+3. **Drift Observatory** — compares the current population against the training/historical reference using robust checkpoint median shift and ML-usability-rate change. The dashboard recomputes this snapshot whenever Model Health is loaded; it does not claim a background streaming monitor.
+4. **Rolling 24h → 96h → 168h Update** — keeps the original trained 24h Module-B forecast intact and, when 96h evidence exists, adds a transparent linear engineering trajectory update. The 96h update is explicitly **not represented as a trained ML model** unless a validated 96h artifact is integrated later.
+
+### Phase-8 Model Health tab
+
+The new **Model Health** workspace shows:
+
+- production model registry and artifact fingerprints;
+- schema contract status;
+- model-applicability counts and review examples;
+- robust population-drift snapshot;
+- whether a `module_b_96h.joblib` artifact is merely discovered.
+
+Phase 8 never automatically promotes a newly discovered model artifact. Promotion remains a controlled engineering/model-governance action.
+
+### Applicability safety semantics
+
+The applicability gate returns one of:
+
+```text
+SUPPORTED
+SUPPORTED_WITH_CAUTION
+OUT_OF_DOMAIN
+SCHEMA_INCOMPATIBLE
+INSUFFICIENT_EVIDENCE
+MODEL_NOT_APPLICABLE
+```
+
+Schema/checkpoint incompatibility and strong OOD evidence cause Module-B output to be withheld from the reliability decision. The raw original result may remain available internally as diagnostic evidence, but the decision-facing Module-B result is marked unavailable/abstained.
+
+The population-distance screen is a transparent MAD-based reference check. It is a model-applicability guardrail, not a calibrated probability.
+
+### Rolling update semantics
+
+The 24h forecast remains the original trained Module-B prediction. If 96h leakage is available, SPARK computes:
+
+```text
+observed slope 24h→96h
+        ↓
+linear engineering projection to 168h
+        ↓
+compare against original 24h ML forecast
+        ↓
+IMPROVING / STABLE / DETERIORATING
+```
+
+The update is shown separately in QA Inspector and is persisted inside the existing governed `model_snapshot` evidence record. It does not silently alter or retrain Module B.
+
+### Phase-8 verification
+
+```bat
+python -m compileall -q app.py core tests
+node --check static\js\app.js
+python -m pytest -q
+python app.py
+```
+
+Then verify:
+
+```text
+GET /api/datasets/<dataset_id>/model-health
+GET /api/datasets/<dataset_id>/inspection/0/assessment
+```
+
+The first endpoint should expose `registry`, `applicability`, `drift`, and `pipeline`. The assessment endpoint should additionally expose `model_applicability` and `rolling_forecast`.
+
+---
+
+## Phase 9 — Population Intelligence & Controlled Learning
+
+Phase 9 is the final major feature-expansion phase. It preserves the Phase-7/8 decision core and adds population-level intelligence around it.
+
+### Added capabilities
+
+1. **Lot / Batch Health Intelligence**
+   - Aggregates existing early-life Module-A evidence by lot and batch.
+   - Shows escalated/reject rates, robust-z outlier rate, medians, slope, and QA override context.
+   - Health states are transparent prioritisation heuristics, not failure probabilities.
+
+2. **Commonality Engine**
+   - Finds attributes enriched in the escalated population (lot, batch, instrument, part/family context where available).
+   - Compares risky vs reference feature medians.
+   - Explicitly reports association only; no causal claim is made.
+
+3. **Calibration Monitor**
+   - Backtests central 90% Module-B interval coverage and the one-sided safety upper bound using evaluation-only 168h truth.
+   - Can request recalibration review, but never changes model calibration automatically.
+
+4. **Governed QA Feedback Learning**
+   - Converts schema-v7 governed QA overrides into an offline engineering-review queue.
+   - Detects recurring model/threshold review flags, override reasons, and machine→human transitions.
+   - No automatic retraining and no automatic threshold modification.
+
+### UI
+
+- New **Lot Intelligence** tab.
+- **Calibration Monitor** added to Model Health.
+- **Governed Feedback Learning** review queue added to Decision History.
+
+### Important scientific boundaries
+
+- Commonality ≠ causality.
+- Population health ≠ probability of failure.
+- Calibration monitoring ≠ automatic recalibration.
+- QA feedback learning ≠ online self-training.
+- Existing Data Trust, Engineering Safety, Applicability, Module-A, Module-B, risk, explainability and governance controls remain authoritative.

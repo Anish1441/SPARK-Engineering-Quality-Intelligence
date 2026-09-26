@@ -6,6 +6,7 @@ import threading
 import time
 import uuid
 import webbrowser
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,14 @@ from core.inspection import resolve_inspection_target
 from core.gates import data_confidence_gate, engineering_safety_gate
 from core.risk_engine import reliability_risk_engine
 from core.explainability import build_decision_explanation
+from core.model_registry import build_model_registry
+from core.applicability import assess_model_applicability, applicability_summary
+from core.drift import drift_snapshot
+from core.rolling_forecast import rolling_forecast_update
+from core.lot_intelligence import build_lot_intelligence
+from core.commonality import commonality_engine
+from core.calibration import calibration_monitor
+from core.feedback_learning import governed_feedback_learning
 
 
 # ---------------------------------------------------------------------------
@@ -242,6 +251,22 @@ def _qa_comment(
             "this component."
         )
 
+    applicability = model.get("model_applicability") or {}
+    applicability_text = (
+        f" Model Applicability Gate is {applicability.get('status', 'UNAVAILABLE')}."
+    )
+    if applicability.get("reason"):
+        applicability_text += f" {applicability['reason']}"
+
+    rolling = model.get("rolling_forecast") or {}
+    rolling_text = ""
+    if rolling:
+        rolling_text = (
+            f" Rolling 96h evidence update is {rolling.get('trajectory') or rolling.get('status') or 'UNAVAILABLE'}."
+        )
+        if isinstance(rolling.get("forecast_shift_uA"), (int, float)):
+            rolling_text += f" Forecast shift is {rolling['forecast_shift_uA']:.3f} uA."
+
     risk_action = reliability_risk.get("unified_action", "HOLD")
     risk_band = reliability_risk.get("risk_band", "INDETERMINATE")
     risk_score = reliability_risk.get("reliability_risk_score")
@@ -254,9 +279,143 @@ def _qa_comment(
 
     return (
         f"Statistical assessment is {state} with an analytical score of "
-        f"{score_text}. {evidence}{data_text}{safety_text}{a_text}{b_text}{risk_text}"
+        f"{score_text}. {evidence}{data_text}{safety_text}{applicability_text}{a_text}{b_text}{rolling_text}{risk_text}"
     )
 
+
+
+
+# ---------------------------------------------------------------------------
+# PHASE 8 REFERENCE DATA / MODEL HEALTH
+# ---------------------------------------------------------------------------
+
+@lru_cache(maxsize=1)
+def _phase1_reference_df() -> pd.DataFrame | None:
+    """Load the original Phase-1 clean dataset for contract/OOD reference.
+
+    The original file remains read-only. If it is unavailable, Phase 8 fails
+    closed to caution rather than fabricating a training reference.
+    """
+    path = (
+        SETTINGS.pipeline_root
+        / "data"
+        / "processed"
+        / "02_clean_measurements_long.csv"
+    )
+    if not path.exists():
+        return None
+    try:
+        frame = pd.read_csv(path)
+    except Exception:
+        return None
+    if "dataset_split" in frame.columns:
+        train = frame[
+            frame["dataset_split"].astype(str).str.lower().eq("train")
+        ]
+        if not train.empty:
+            return train
+    return frame
+
+
+def _population_evidence(df: pd.DataFrame, cache_key: str | None = None) -> dict[str, Any]:
+    try:
+        return ml.evidence_tables(df, cache_key=cache_key)
+    except Exception as exc:
+        return {
+            "features": pd.DataFrame(),
+            "module_a": None,
+            "module_b": None,
+            "build_report": None,
+            "cache_hit": False,
+            "error": str(exc),
+        }
+
+
+def _model_health_payload(df: pd.DataFrame, *, cache_key: str | None = None) -> dict[str, Any]:
+    pipeline_status = ml.status()
+    reference = _phase1_reference_df()
+    registry = build_model_registry(
+        SETTINGS.pipeline_root,
+        pipeline_status,
+        df,
+    )
+    evidence = _population_evidence(df, cache_key=cache_key)
+    return {
+        "phase": 9,
+        "mode": "SPARK MODEL HEALTH + CALIBRATION",
+        "registry": registry,
+        "applicability": applicability_summary(
+            df,
+            reference_df=reference,
+        ),
+        "drift": drift_snapshot(df),
+        "calibration": calibration_monitor(evidence.get("module_b")),
+        "pipeline": pipeline_status,
+    }
+
+
+def _lot_intelligence_payload(dataset_id: str, df: pd.DataFrame) -> dict[str, Any]:
+    evidence = _population_evidence(df, cache_key=dataset_id)
+    features = evidence.get("features")
+    module_a = evidence.get("module_a")
+    module_b = evidence.get("module_b")
+    rows = qa.list(dataset_id)
+    return {
+        "phase": 9,
+        "mode": "SPARK POPULATION INTELLIGENCE",
+        "health": build_lot_intelligence(
+            features,
+            module_a,
+            module_b,
+            rows,
+        ),
+        "commonality": commonality_engine(
+            df,
+            features,
+            module_a,
+        ),
+    }
+
+
+def _apply_model_applicability(
+    model: dict[str, Any],
+    applicability: dict[str, Any],
+) -> dict[str, Any]:
+    """Fail closed at the decision boundary when Module-B is not applicable."""
+    if applicability.get("applicable") is True:
+        return model
+
+    safe = dict(model)
+    raw_module_b = dict(model.get("module_b") or {})
+    abstained = {
+        "available": False,
+        "mode": "SPARK MODULE-B APPLICABILITY GATE",
+        "status": "ABSTAINED",
+        "component_id": model.get("component_id"),
+        "model": raw_module_b.get("model"),
+        "prediction_168h_uA": None,
+        "prediction_lower_05_uA": None,
+        "prediction_median_50_uA": None,
+        "prediction_upper_95_uA": None,
+        "conformal_safety_upper_uA": None,
+        "reason": applicability.get("reason"),
+        "message": (
+            "Module-B output is withheld from the reliability decision because "
+            "the Phase-8 applicability gate did not authorize model use."
+        ),
+    }
+    safe["module_b_diagnostic"] = raw_module_b
+    safe["module_b"] = abstained
+    safe["module_b_available"] = False
+    safe["available"] = False
+    safe["prediction"] = None
+    safe["prediction_168h_uA"] = None
+    safe["prediction_lower_05_uA"] = None
+    safe["prediction_median_50_uA"] = None
+    safe["prediction_upper_95_uA"] = None
+    safe["conformal_safety_upper_uA"] = None
+    safe["message"] = abstained["message"]
+    return safe
 
 # ---------------------------------------------------------------------------
 # MAIN PAGE
@@ -279,7 +438,7 @@ def health():
             "service": (
                 "SPARK Engineering Quality Intelligence"
             ),
-            "version": "7.6.0",
+            "version": "9.0.0",
             "pipeline_root": str(SETTINGS.pipeline_root),
         }
     )
@@ -391,6 +550,34 @@ def analysis(dataset_id):
 
 
 # ---------------------------------------------------------------------------
+# PHASE 8 MODEL HEALTH
+# ---------------------------------------------------------------------------
+
+@app.get("/api/datasets/<dataset_id>/model-health")
+def model_health(dataset_id):
+    try:
+        _, df = dm.get(dataset_id)
+        return safe_jsonify(_model_health_payload(df, cache_key=dataset_id))
+    except DatasetError as exc:
+        return safe_jsonify({"detail": str(exc)}, 404)
+
+
+# ---------------------------------------------------------------------------
+# PHASE 9 LOT / POPULATION INTELLIGENCE
+# ---------------------------------------------------------------------------
+
+@app.get("/api/datasets/<dataset_id>/lot-intelligence")
+def lot_intelligence(dataset_id):
+    try:
+        _, df = dm.get(dataset_id)
+        return safe_jsonify(_lot_intelligence_payload(dataset_id, df))
+    except DatasetError as exc:
+        return safe_jsonify({"detail": str(exc)}, 404)
+    except ValueError as exc:
+        return safe_jsonify({"detail": str(exc)}, 500)
+
+
+# ---------------------------------------------------------------------------
 # SIGNAL CONTROL
 # ---------------------------------------------------------------------------
 
@@ -470,6 +657,16 @@ def assessment(dataset_id, index):
         )
 
         # -----------------------------------------------------------
+        # PHASE 8 MODEL APPLICABILITY / OOD GATE
+        # -----------------------------------------------------------
+
+        model_applicability = assess_model_applicability(
+            df,
+            raw_index,
+            reference_df=_phase1_reference_df(),
+        )
+
+        # -----------------------------------------------------------
         # REAL SPARK ML INFERENCE
         # -----------------------------------------------------------
 
@@ -477,6 +674,10 @@ def assessment(dataset_id, index):
             df,
             raw_index,
             cache_key=dataset_id,
+        )
+        model = _apply_model_applicability(
+            model,
+            model_applicability,
         )
 
         # -----------------------------------------------------------
@@ -492,6 +693,15 @@ def assessment(dataset_id, index):
 
         module_a = model.get("module_a") or {}
         module_b = model.get("module_b") or model
+        rolling_forecast = rolling_forecast_update(
+            df,
+            raw_index,
+            module_b,
+        )
+        # Persist Phase-8 evidence through the existing model_snapshot field in
+        # the governed QA ledger without changing historical schema-v7 hashes.
+        model["model_applicability"] = model_applicability
+        model["rolling_forecast"] = rolling_forecast
         reliability_risk = reliability_risk_engine(
             data_confidence,
             engineering_safety,
@@ -527,6 +737,19 @@ def assessment(dataset_id, index):
             "measurement_time_h": _json_safe(row.get("measurement_time_h")),
             "lot_id": _json_safe(row.get("lot_id")),
             "burnin_batch_id": _json_safe(row.get("burnin_batch_id")),
+
+            # -------------------------------------------------------
+            # Phase 8 applicability / rolling forecast
+            # -------------------------------------------------------
+
+            "model_applicability": model_applicability,
+            "model_applicability_status": model_applicability.get("status"),
+            "model_applicable": model_applicability.get("applicable"),
+            "rolling_forecast": rolling_forecast,
+            "rolling_forecast_status": rolling_forecast.get("status"),
+            "rolling_forecast_trajectory": rolling_forecast.get("trajectory"),
+            "rolling_forecast_updated_168h_uA": rolling_forecast.get("updated_168h_uA"),
+            "rolling_forecast_shift_uA": rolling_forecast.get("forecast_shift_uA"),
 
             # -------------------------------------------------------
             # Data Trust / Engineering Safety guardrails
@@ -703,6 +926,8 @@ def assessment(dataset_id, index):
                 "engineering_safety": "SPARK Engineering Safety Gate (documented hard limits)",
                 "reliability_risk": "SPARK Unified Reliability Risk Engine (deterministic evidence fusion)",
                 "explainability": "SPARK deterministic reason-code hierarchy (no LLM)",
+                "model_applicability": "SPARK Phase-8 model-contract + robust OOD gate",
+                "rolling_forecast": "SPARK Phase-8 96h engineering trajectory update; not a trained 96h ML model",
                 "feature_engineering": (
                     "Original SPARK build_feature_table()"
                 ),
@@ -808,6 +1033,17 @@ def qa_feedback_summary(dataset_id):
     try:
         dm.get(dataset_id)
         return safe_jsonify(qa.feedback_summary(dataset_id))
+    except DatasetError as exc:
+        return safe_jsonify({"detail": str(exc)}, 404)
+    except ValueError as exc:
+        return safe_jsonify({"detail": str(exc)}, 500)
+
+
+@app.get("/api/qa/<dataset_id>/feedback-learning")
+def qa_feedback_learning(dataset_id):
+    try:
+        dm.get(dataset_id)
+        return safe_jsonify(governed_feedback_learning(qa.list(dataset_id)))
     except DatasetError as exc:
         return safe_jsonify({"detail": str(exc)}, 404)
     except ValueError as exc:

@@ -9,6 +9,8 @@ const S = {
     datasets: [],
     active: null,
     analysis: null,
+    modelHealth: null,
+    lotIntelligence: null,
     signal: "",
     record: 0,
     assessment: null,
@@ -251,6 +253,14 @@ function go(v) {
 
     if (v === "analysis") {
         renderAnalysis();
+    }
+
+    if (v === "model-health") {
+        loadModelHealth();
+    }
+
+    if (v === "lot-intelligence") {
+        loadLotIntelligence();
     }
 
     if (v === "qa") {
@@ -1917,6 +1927,247 @@ function moduleAValue(moduleA, key, fallback = null) {
 
 
 /* =========================================================
+   MODEL HEALTH · PHASE 8
+========================================================= */
+
+async function loadModelHealth() {
+    const summary = $("#modelHealthSummary");
+    const registryNode = $("#modelRegistry");
+    const applicabilityNode = $("#modelApplicability");
+    const driftNode = $("#modelDrift");
+    const calibrationNode = $("#modelCalibration");
+
+    if (!S.active) {
+        if (summary) summary.innerHTML = card("MODEL HEALTH", "No active dataset");
+        if (registryNode) registryNode.innerHTML = '<p class="muted">Activate a dataset first.</p>';
+        if (applicabilityNode) applicabilityNode.innerHTML = '<p class="muted">No applicability result.</p>';
+        if (driftNode) driftNode.innerHTML = '<p class="muted">No drift result.</p>';
+        if (calibrationNode) calibrationNode.innerHTML = '<p class="muted">No calibration result.</p>';
+        return;
+    }
+
+    try {
+        const h = await api(`/datasets/${S.active.dataset_id}/model-health`);
+        S.modelHealth = h;
+        renderModelHealth();
+    } catch (e) {
+        toast(e.message);
+    }
+}
+
+function renderModelHealth() {
+    const h = S.modelHealth || {};
+    const registry = h.registry || {};
+    const applicability = h.applicability || {};
+    const drift = h.drift || {};
+    const calibration = h.calibration || {};
+    const models = Array.isArray(registry.models) ? registry.models : [];
+    const production = models.filter(m => m.status === "PRODUCTION");
+
+    $("#modelHealthSummary").innerHTML = [
+        card("PRODUCTION MODELS", production.length),
+        card("APPLICABILITY", applicability.status || "UNAVAILABLE"),
+        card("DRIFT", drift.status || "UNAVAILABLE"),
+        card("CALIBRATION", calibration.status || "UNAVAILABLE"),
+        card("96h ML ARTIFACT", registry.discovered_96h_model ? "DISCOVERED" : "NOT PRESENT")
+    ].join("");
+
+    $("#modelRegistry").innerHTML = models.length
+        ? `
+            <div class="model-health-note">
+                <b>SCHEMA FINGERPRINT</b>
+                <code>${esc((registry.schema?.fingerprint || "").slice(0, 20))}${registry.schema?.fingerprint ? "…" : ""}</code>
+                <span>${registry.schema?.base_contract_satisfied ? "Base contract satisfied" : "Base contract incomplete"}</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>MODEL</th>
+                            <th>STATUS</th>
+                            <th>CUTOFF</th>
+                            <th>FEATURES</th>
+                            <th>ARTIFACT SHA-256</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${models.map(m => `
+                            <tr>
+                                <td><b>${esc(m.model_id)}</b><br><span class="muted">${esc(m.target || "—")}</span></td>
+                                <td>${esc(m.status || "—")}</td>
+                                <td>${fmt(m.prediction_cutoff_h)}h</td>
+                                <td>${Number((m.feature_set || []).length)}</td>
+                                <td><code>${esc((m.artifact_sha256 || "missing").slice(0, 16))}${m.artifact_sha256 ? "…" : ""}</code></td>
+                            </tr>
+                        `).join("")}
+                    </tbody>
+                </table>
+            </div>
+            <p class="muted">${esc(registry.policy || "")}</p>
+        `
+        : '<p class="muted">No model registry entries available.</p>';
+
+    const counts = applicability.counts || {};
+    $("#modelApplicability").innerHTML = `
+        <div class="model-health-kpi">
+            <strong>${esc(applicability.status || "UNAVAILABLE")}</strong>
+            <span>${Number(applicability.evaluated_components || 0).toLocaleString()} component(s) evaluated${applicability.sample_limited ? " · deterministic sample" : ""}</span>
+        </div>
+        <div class="health-count-grid">
+            ${Object.entries(counts).map(([name, value]) => `
+                <div><b>${esc(name)}</b><span>${Number(value).toLocaleString()}</span></div>
+            `).join("") || '<p class="muted">No applicability counts available.</p>'}
+        </div>
+        ${(applicability.examples || []).length ? `
+            <div class="health-examples">
+                <b>REVIEW EXAMPLES</b>
+                ${(applicability.examples || []).map(x => `
+                    <div><code>${esc(x.component_id)}</code><span>${esc(x.status)}</span><small>${esc(x.reason || "")}</small></div>
+                `).join("")}
+            </div>
+        ` : ""}
+        <p class="muted">Applicability checks model-contract compatibility and robust distance from the Phase-1 training reference. It is not a probability.</p>
+    `;
+
+    const metrics = Array.isArray(drift.metrics) ? drift.metrics : [];
+    $("#modelDrift").innerHTML = `
+        <div class="model-health-kpi inline-health-kpi">
+            <strong>${esc(drift.status || "UNAVAILABLE")}</strong>
+            <span>${esc(drift.comparison || "No comparison")}</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>METRIC</th><th>REFERENCE</th><th>CURRENT</th><th>SHIFT</th><th>STATE</th></tr></thead>
+                <tbody>
+                    ${metrics.map(m => `
+                        <tr>
+                            <td>${esc(m.metric || "—")}</td>
+                            <td>${fmt(m.reference_median ?? m.reference_pct)}</td>
+                            <td>${fmt(m.current_median ?? m.current_pct)}</td>
+                            <td>${fmt(m.median_shift_robust_sigma ?? m.delta_percentage_points)}</td>
+                            <td><b>${esc(m.severity || (m.available === false ? "UNAVAILABLE" : "—"))}</b></td>
+                        </tr>
+                    `).join("") || '<tr><td colspan="5">No drift metrics available.</td></tr>'}
+                </tbody>
+            </table>
+        </div>
+        <p class="muted">${esc(drift.continuous_semantics || "")}</p>
+    `;
+
+    const calMetrics = Array.isArray(calibration.metrics) ? calibration.metrics : [];
+    $("#modelCalibration").innerHTML = `
+        <div class="model-health-kpi inline-health-kpi">
+            <strong>${esc(calibration.status || "UNAVAILABLE")}</strong>
+            <span>${Number(calibration.evaluation_components || 0)} evaluation components</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>METRIC</th><th>EXPECTED</th><th>OBSERVED</th><th>GAP</th><th>STATE</th></tr></thead>
+                <tbody>
+                    ${calMetrics.map(m => `
+                        <tr>
+                            <td>${esc(m.metric || "—")}</td>
+                            <td>${fmt(m.expected_pct)}%</td>
+                            <td>${fmt(m.observed_pct)}%</td>
+                            <td>${fmt(m.gap_percentage_points)} pp</td>
+                            <td><b>${esc(m.state || "—")}</b></td>
+                        </tr>
+                    `).join("") || '<tr><td colspan="5">No calibration metrics available.</td></tr>'}
+                </tbody>
+            </table>
+        </div>
+        <p class="muted">${esc(calibration.semantics || "")}</p>
+    `;
+}
+
+
+/* =========================================================
+   LOT INTELLIGENCE · PHASE 9
+========================================================= */
+
+async function loadLotIntelligence() {
+    if (!S.active) return;
+    try {
+        S.lotIntelligence = await api(`/datasets/${S.active.dataset_id}/lot-intelligence`);
+        renderLotIntelligence();
+    } catch (e) {
+        toast(e.message);
+    }
+}
+
+function renderLotIntelligence() {
+    const payload = S.lotIntelligence || {};
+    const health = payload.health || {};
+    const common = payload.commonality || {};
+    const lots = Array.isArray(health.lots) ? health.lots : [];
+    const commonalities = Array.isArray(common.commonalities) ? common.commonalities : [];
+    const numeric = Array.isArray(common.numeric_shifts) ? common.numeric_shifts : [];
+
+    const summary = $("#lotHealthSummary");
+    if (summary) {
+        summary.innerHTML = [
+            card("LOT HEALTH", health.status || "UNAVAILABLE"),
+            card("LOTS", Number(health.lot_count || 0)),
+            card("BATCHES", Number(health.batch_count || 0)),
+            card("ESCALATED COMPONENTS", Number(common.risky_components || 0))
+        ].join("");
+    }
+
+    const table = $("#lotHealthTable");
+    if (table) {
+        table.innerHTML = `
+            <div class="table-wrap"><table>
+                <thead><tr><th>LOT</th><th>COMPONENTS</th><th>STATE</th><th>ESCALATED</th><th>REJECT</th><th>24h OUTLIERS</th><th>QA OVERRIDES</th></tr></thead>
+                <tbody>
+                    ${lots.map(r => `
+                        <tr>
+                            <td><b>${esc(r.lot_id || "—")}</b></td>
+                            <td>${fmt(r.components)}</td>
+                            <td><b>${esc(r.health_state || "—")}</b></td>
+                            <td>${fmt(r.module_a_escalated_pct)}%</td>
+                            <td>${fmt(r.module_a_reject_pct)}%</td>
+                            <td>${fmt(r.robust_z_24h_outlier_pct)}%</td>
+                            <td>${fmt(r.qa_override_rate_pct || 0)}%</td>
+                        </tr>
+                    `).join("") || '<tr><td colspan="7">No lot health evidence available.</td></tr>'}
+                </tbody>
+            </table></div>
+            <p class="muted">${esc(health.semantics || "")}</p>
+        `;
+    }
+
+    const panel = $("#commonalityPanel");
+    if (panel) {
+        panel.innerHTML = `
+            <div class="model-health-kpi inline-health-kpi">
+                <strong>${esc(common.status || "UNAVAILABLE")}</strong>
+                <span>${Number(common.risky_components || 0)} escalated vs ${Number(common.reference_components || 0)} reference components</span>
+            </div>
+            <div class="two">
+                <div class="table-wrap"><table>
+                    <thead><tr><th>FIELD</th><th>VALUE</th><th>RISK SUPPORT</th><th>REFERENCE</th><th>ENRICHMENT</th></tr></thead>
+                    <tbody>
+                        ${commonalities.map(r => `
+                            <tr><td>${esc(r.field)}</td><td>${esc(r.value)}</td><td>${fmt(r.risky_support_pct)}%</td><td>${fmt(r.reference_support_pct)}%</td><td>${fmt(r.enrichment_ratio)}×</td></tr>
+                        `).join("") || '<tr><td colspan="5">No strong categorical commonality found.</td></tr>'}
+                    </tbody>
+                </table></div>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>FEATURE</th><th>RISK MEDIAN</th><th>REFERENCE MEDIAN</th><th>DELTA</th></tr></thead>
+                    <tbody>
+                        ${numeric.map(r => `
+                            <tr><td>${esc(r.feature)}</td><td>${fmt(r.risky_median)}</td><td>${fmt(r.reference_median)}</td><td>${fmt(r.median_delta)}</td></tr>
+                        `).join("") || '<tr><td colspan="4">No numeric commonality evidence.</td></tr>'}
+                    </tbody>
+                </table></div>
+            </div>
+            <p class="muted">${esc(common.semantics || "")}</p>
+        `;
+    }
+}
+
+
+/* =========================================================
    QA INSPECTOR
 ========================================================= */
 
@@ -2146,6 +2397,47 @@ async function loadAssessment() {
             Array.isArray(engineeringSafety.failures)
                 ? engineeringSafety.failures
                 : [];
+
+        const applicability = a.model_applicability || {};
+        $("#applicabilityPanel").innerHTML = `
+            <div class="phase8-evidence-card applicability-card">
+                <div class="phase8-evidence-head">
+                    <div>
+                        <span>MODEL APPLICABILITY / OOD GATE</span>
+                        <strong>${esc(applicability.status || "UNAVAILABLE")}</strong>
+                    </div>
+                    <em>${applicability.applicable === true ? "MODEL USE AUTHORIZED" : "ABSTAIN / REVIEW"}</em>
+                </div>
+                <p>${esc(applicability.reason || "No applicability evidence available.")}</p>
+                <div class="phase8-evidence-grid">
+                    <div><b>POPULATION</b><span>${esc(applicability.population_similarity || "—")}</span></div>
+                    <div><b>MAX ROBUST DISTANCE</b><span>${fmt(applicability.max_robust_distance)}</span></div>
+                    <div><b>METHOD</b><span>${esc(applicability.method || "—")}</span></div>
+                    <div><b>FUTURE DATA</b><span>${applicability.uses_future_measurements === false ? "NOT USED" : "—"}</span></div>
+                </div>
+            </div>
+        `;
+
+        const rolling = a.rolling_forecast || {};
+        $("#rollingForecastPanel").innerHTML = `
+            <div class="phase8-evidence-card rolling-card">
+                <div class="phase8-evidence-head">
+                    <div>
+                        <span>ROLLING 24h → 96h → 168h UPDATE</span>
+                        <strong>${esc(rolling.trajectory || rolling.status || "UNAVAILABLE")}</strong>
+                    </div>
+                    <em>${rolling.is_trained_96h_ml_model === true ? "96h ML" : "ENGINEERING UPDATE"}</em>
+                </div>
+                <div class="phase8-evidence-grid">
+                    <div><b>24h ML FORECAST</b><span>${fmt(rolling.module_b_24h_forecast_168h_uA)} µA</span></div>
+                    <div><b>OBSERVED @ 96h</b><span>${fmt(rolling.observed_ir_96h_uA)} µA</span></div>
+                    <div><b>UPDATED 168h</b><span>${fmt(rolling.updated_168h_uA)} µA</span></div>
+                    <div><b>FORECAST SHIFT</b><span>${fmt(rolling.forecast_shift_uA)} µA</span></div>
+                </div>
+                <p>${esc(rolling.message || "Waiting for rolling forecast evidence.")}</p>
+                <p class="muted">The 96h update is kept separate from the trained Module-B 24h model unless a validated 96h artifact is explicitly integrated.</p>
+            </div>
+        `;
 
         $("#guardrailPanel").innerHTML = `
             <div class="guardrail-grid">
@@ -2974,10 +3266,11 @@ async function loadHistory() {
     if (!S.active) return;
 
     try {
-        const [x, integrity, feedback] = await Promise.all([
+        const [x, integrity, feedback, learning] = await Promise.all([
             api(`/qa/${S.active.dataset_id}`),
             api(`/qa/${S.active.dataset_id}/integrity`),
-            api(`/qa/${S.active.dataset_id}/feedback-summary`)
+            api(`/qa/${S.active.dataset_id}/feedback-summary`),
+            api(`/qa/${S.active.dataset_id}/feedback-learning`)
         ]);
 
         const container =
@@ -3005,6 +3298,24 @@ async function loadHistory() {
                     <div><b>${Number(feedback.overrides || 0)}</b><span>Overrides</span></div>
                     <div><b>${fmt(feedback.override_rate_pct || 0)}%</b><span>Override rate</span></div>
                     <div><b>${Number(feedback.model_threshold_review_flags || 0)}</b><span>Model/threshold review flags</span></div>
+                </div>
+            `;
+        }
+
+        const learningContainer = $("#feedbackLearningQueue");
+        if (learningContainer) {
+            const candidates = Array.isArray(learning.candidates) ? learning.candidates : [];
+            learningContainer.innerHTML = `
+                <div class="panel feedback-learning-panel">
+                    <div class="panel-heading"><div><b>GOVERNED FEEDBACK LEARNING</b><span>Offline review candidates only · no automatic retraining</span></div><span class="panel-index">REVIEW</span></div>
+                    <div class="table-wrap"><table>
+                        <thead><tr><th>CANDIDATE</th><th>TYPE</th><th>PRIORITY</th><th>EVIDENCE</th><th>NEXT STEP</th></tr></thead>
+                        <tbody>
+                            ${candidates.map(c => `
+                                <tr><td><b>${esc(c.candidate_id)}</b></td><td>${esc(c.type)}</td><td>${esc(c.priority)}</td><td>${fmt(c.evidence_count)}</td><td>${esc(c.recommended_next_step)}</td></tr>
+                            `).join("") || '<tr><td colspan="5">No governed review candidates yet.</td></tr>'}
+                        </tbody>
+                    </table></div>
                 </div>
             `;
         }

@@ -1,34 +1,30 @@
-SPARK Phase 7 — FINAL CLOSURE / HANDOFF
+SPARK PHASE 9 — POPULATION INTELLIGENCE & CONTROLLED LEARNING
+============================================================
 
-Functional baseline:
-- Data Trust Gate
-- Engineering Safety Gate
-- original Phase-1 Module A dynamic anomaly inference
-- original Phase-1 Module B 168h forecast inference
-- Unified Reliability Risk Engine
-- deterministic Explainable QA Decision
-- hash-sealed local QA traceability ledger
-- governed QA overrides and feedback summary
+Version: 9.0.0
+Scope: Final major feature-expansion phase
 
-Closure-only changes:
-- final README handoff status and closure commands
-- final demo path / claim guardrails
-- concise DEMO_CHECKLIST.md
+NEW CORE MODULES
+- core/lot_intelligence.py
+- core/commonality.py
+- core/calibration.py
+- core/feedback_learning.py
 
-Local cleanup required before commit:
-- delete obsolete core\\pipeline_adapter.py.bak
-- do not stage .venv/, data/, __pycache__/, .pytest_cache/ or local backup folders
+MODIFIED
+- core/pipeline_adapter.py: public read-only population evidence surface
+- app.py: Phase-9 APIs, calibration in Model Health, version 9.0.0
+- templates/index.html: Lot Intelligence tab, Calibration panel, Feedback Learning panel
+- static/js/app.js: Phase-9 UI rendering and API integration
+- README.md
+- DEMO_CHECKLIST.md
 
-Regression target on the user's machine:
-- Python compile: PASS
-- JavaScript syntax: PASS
-- pytest: 39 passed (or higher if additional tests exist), 0 failed
-- git diff --check: no whitespace errors; CRLF conversion warnings are informational
-- original Phase-1 Module A + Module B status: available
+NEW TESTS
+- tests/test_phase9.py
 
-Final Git sequence:
-- git add -A
-- inspect git status and git diff --cached --stat
-- commit
-- push origin main
-- confirm clean working tree and origin/main alignment
+SCIENTIFIC / GOVERNANCE BOUNDARIES
+- No automatic retraining
+- No automatic threshold changes
+- No causal claim from commonality analysis
+- No failure-probability claim from lot health
+- Evaluation-only 168h truth is used only for calibration backtesting
+- Stable Phase-7/8 decision chain is not replaced

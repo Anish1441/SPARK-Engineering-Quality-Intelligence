@@ -435,6 +435,30 @@ class PipelineAdapter:
             False,
         )
 
+    def evidence_tables(
+        self,
+        df: pd.DataFrame,
+        *,
+        cache_key: str | None = None,
+    ) -> dict[str, Any]:
+        """Return cached component-level Phase-1 evidence tables.
+
+        This is a read-only integration surface for population intelligence,
+        calibration monitoring, and commonality analysis. It does not retrain
+        or mutate the original Phase-1 models.
+        """
+        features, module_a, module_b, build_report, cache_hit = self._prepare_evidence(
+            df,
+            cache_key=cache_key,
+        )
+        return {
+            "features": features.copy(),
+            "module_a": module_a.copy() if isinstance(module_a, pd.DataFrame) else None,
+            "module_b": module_b.copy() if isinstance(module_b, pd.DataFrame) else None,
+            "build_report": build_report,
+            "cache_hit": cache_hit,
+        }
+
     # Backward-compatible helper retained for previous tests/internals.
     def _prepare_predictions(
         self,
