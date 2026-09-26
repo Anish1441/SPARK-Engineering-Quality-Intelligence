@@ -104,3 +104,16 @@ def test_risk_engine_holds_when_module_b_is_unavailable():
     assert result["unified_action"] == "HOLD"
     assert result["risk_band"] == "HIGH"
     assert result["evidence_completeness_pct"] == 75.0
+
+
+def test_risk_engine_hard_failure_overrides_noncritical_data_hold():
+    result = reliability_risk_engine(
+        _data("HOLD", "HOLD", 83.3),
+        _safety("FAIL", True),
+        _module_a("REJECT"),
+        _module_b(available=False),
+    )
+    assert result["unified_action"] == "REJECT"
+    assert result["risk_band"] == "CRITICAL"
+    assert result["reliability_risk_score"] == 100.0
+    assert result["safety_override"] is True

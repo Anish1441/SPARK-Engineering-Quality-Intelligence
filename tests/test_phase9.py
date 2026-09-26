@@ -108,3 +108,38 @@ def test_feedback_learning_empty_is_safe():
     result=governed_feedback_learning([])
     assert result["status"] == "NO_REVIEW_CANDIDATES"
     assert result["candidates"] == []
+
+
+def test_commonality_preserves_cross_dimension_visibility():
+    rows = []
+    feats = []
+    actions = []
+    # Risk population has many unique lot/batch associations plus one shared
+    # instrument signal; reference population uses another instrument.
+    for i in range(18):
+        cid = f"R{i}"
+        lot = f"RL{i//2}"
+        batch = f"RB{i//2}"
+        feats.append({"component_id": cid, "lot_id": lot, "burnin_batch_id": batch,
+                      "slope_0_24_uA_per_h": 0.2, "robust_z_24h": 3.0})
+        actions.append({"component_id": cid, "action": "WATCH"})
+        for h in (0, 24):
+            rows.append({"component_id": cid, "measurement_time_h": h,
+                         "leakage_current_uA": 20.0, "lot_id": lot,
+                         "burnin_batch_id": batch, "instrument_id": "SMU-RISK"})
+
+    for i in range(20):
+        cid = f"N{i}"
+        feats.append({"component_id": cid, "lot_id": "BASE", "burnin_batch_id": "BASEB",
+                      "slope_0_24_uA_per_h": 0.01, "robust_z_24h": 0.1})
+        actions.append({"component_id": cid, "action": "ACCEPT"})
+        for h in (0, 24):
+            rows.append({"component_id": cid, "measurement_time_h": h,
+                         "leakage_current_uA": 10.0, "lot_id": "BASE",
+                         "burnin_batch_id": "BASEB", "instrument_id": "SMU-BASE"})
+
+    result = commonality_engine(pd.DataFrame(rows), pd.DataFrame(feats), pd.DataFrame(actions))
+    assert any(
+        x["field"] == "instrument_id" and x["value"] == "SMU-RISK"
+        for x in result["commonalities"]
+    )

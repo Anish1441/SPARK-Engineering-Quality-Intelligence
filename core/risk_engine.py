@@ -33,11 +33,12 @@ def reliability_risk_engine(
     The returned risk score is a transparent prioritisation index, not a
     calibrated probability of failure. Decision precedence is deterministic:
 
-    1. bad/incomplete early evidence -> RETEST/HOLD
+    1. unusable/incomplete required evidence -> RETEST
     2. observed hard electrical failure -> REJECT
-    3. unavailable engineering limit -> HOLD
-    4. original Module-A action
-    5. original Module-B forecast/uncertainty against the engineering limit
+    3. non-critical data-quality concern -> HOLD
+    4. unavailable engineering limit -> HOLD
+    5. original Module-A action
+    6. original Module-B forecast/uncertainty against the engineering limit
 
     A model can escalate review, but it can never convert a hard observed
     safety failure or unusable evidence into ACCEPT.
@@ -103,25 +104,6 @@ def reliability_risk_engine(
             "score_is_probability": False,
         }
 
-    if data_action == "HOLD" or data_status == "HOLD":
-        return {
-            "available": True,
-            "mode": "SPARK UNIFIED RELIABILITY RISK ENGINE",
-            "component_id": component_id,
-            "reliability_risk_score": None,
-            "risk_band": "INDETERMINATE",
-            "evidence_completeness_pct": evidence_completeness,
-            "unified_action": "HOLD",
-            "reason": data_confidence.get("reason") or "Evidence quality requires human review.",
-            "safety_override": False,
-            "engineering_limit_uA": limit,
-            "forecast_limit_utilization_pct": forecast_utilisation,
-            "forecast_reference_uA": forecast_reference,
-            "conformal_safety_upper_uA": conformal_upper,
-            "contributors": [{"source": "DATA_TRUST", "severity": "HOLD"}],
-            "score_is_probability": False,
-        }
-
     if hard_failure:
         return {
             "available": True,
@@ -138,6 +120,25 @@ def reliability_risk_engine(
             "forecast_reference_uA": forecast_reference,
             "conformal_safety_upper_uA": conformal_upper,
             "contributors": [{"source": "ENGINEERING_SAFETY", "severity": "HARD_FAIL"}],
+            "score_is_probability": False,
+        }
+
+    if data_action == "HOLD" or data_status == "HOLD":
+        return {
+            "available": True,
+            "mode": "SPARK UNIFIED RELIABILITY RISK ENGINE",
+            "component_id": component_id,
+            "reliability_risk_score": None,
+            "risk_band": "INDETERMINATE",
+            "evidence_completeness_pct": evidence_completeness,
+            "unified_action": "HOLD",
+            "reason": data_confidence.get("reason") or "Evidence quality requires human review.",
+            "safety_override": False,
+            "engineering_limit_uA": limit,
+            "forecast_limit_utilization_pct": forecast_utilisation,
+            "forecast_reference_uA": forecast_reference,
+            "conformal_safety_upper_uA": conformal_upper,
+            "contributors": [{"source": "DATA_TRUST", "severity": "HOLD"}],
             "score_is_probability": False,
         }
 

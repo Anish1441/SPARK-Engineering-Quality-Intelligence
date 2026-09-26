@@ -1,0 +1,477 @@
+component_id,scenario_family,scenario_group,injected_condition,expected_primary_behavior,lot_id,burnin_batch_id,instrument_id,expected_required_checkpoint_issue,expected_hard_limit_breach,expected_ood_candidate,expected_population_signal,expected_calibration_stress,seed
+SPARK_CH_00001,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00002,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00003,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00004,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00005,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00006,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00007,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00008,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00009,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00010,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00011,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00012,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00013,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00014,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00015,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00016,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00017,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00018,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00019,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00020,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00021,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00022,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00023,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00024,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00025,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00026,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00027,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00028,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00029,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00030,NOMINAL_BEST,Baseline / best case,Normal low stable trajectory,Normal processing; no forced escalation,CH_01,CH_01_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00031,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00032,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00033,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00034,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00035,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00036,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00037,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00038,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00039,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00040,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00041,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00042,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00043,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00044,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00045,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_GOOD_BATCH,SMU-01,,False,False,False,False,26170
+SPARK_CH_00046,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00047,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00048,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00049,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00050,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00051,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00052,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00053,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00054,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00055,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00056,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00057,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00058,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00059,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00060,NOMINAL_TYPICAL,Baseline,Typical in-domain stable trajectory,Normal processing,CH_MIXED_LOT,CH_MIXED_LOT_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00061,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00062,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00063,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00064,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00065,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00066,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00067,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00068,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00069,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00070,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00071,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00072,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00073,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00074,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00075,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00076,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00077,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00078,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00079,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00080,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00081,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00082,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00083,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00084,BORDERLINE_EARLY,Module A / Risk,Early robust-z near watch region,Elevated early-life evidence,CH_03,CH_03_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00085,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00086,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00087,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00088,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00089,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00090,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00091,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00092,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00093,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00094,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00095,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00096,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00097,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00098,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00099,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00100,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00101,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00102,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00103,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00104,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00105,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00106,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00107,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00108,EARLY_SPIKE_RECOVERY,Module A / Rolling forecast,24h spike followed by recovery,Early anomaly with later improvement,CH_04,CH_04_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00109,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00110,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00111,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00112,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00113,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00114,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00115,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00116,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00117,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00118,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00119,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00120,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00121,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00122,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00123,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00124,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00125,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00126,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00127,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00128,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00129,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00130,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00131,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00132,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00133,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00134,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00135,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00136,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00137,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00138,PROGRESSIVE_DEGRADATION,Module B / Risk,Monotonic degradation,Forecast/risk escalation,CH_05,CH_05_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00139,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00140,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00141,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00142,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00143,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00144,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00145,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00146,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00147,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00148,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00149,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00150,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00151,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00152,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00153,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00154,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00155,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00156,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00157,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00158,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00159,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00160,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00161,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00162,LATE_ACCELERATION,Rolling forecast / evaluation,"Early evidence mild, late truth accelerates",24h forecast stress / 96h deterioration,CH_06,CH_06_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00163,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00164,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00165,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00166,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00167,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00168,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00169,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00170,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00171,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00172,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00173,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00174,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00175,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00176,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00177,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00178,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00179,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00180,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00181,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00182,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00183,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00184,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00185,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00186,FORECAST_IMPROVING,Rolling forecast,High 24h then recovery by 96h,IMPROVING trajectory candidate,CH_07,CH_07_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00187,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00188,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00189,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00190,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00191,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00192,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00193,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00194,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00195,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00196,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00197,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00198,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00199,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00200,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00201,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00202,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00203,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00204,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00205,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00206,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00207,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00208,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00209,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00210,FORECAST_DETERIORATING,Rolling forecast,"24h mild, 96h sharply worse",DETERIORATING trajectory candidate,CH_08,CH_08_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00211,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00212,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00213,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00214,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00215,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00216,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00217,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00218,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00219,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00220,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00221,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00222,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00223,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00224,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00225,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00226,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00227,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00228,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00229,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00230,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00231,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00232,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00233,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B1,SMU-01,,False,True,False,False,26170
+SPARK_CH_00234,OOD_HIGH_BELOW_LIMIT,Applicability / OOD,Very high early evidence but below hard limit,OUT_OF_DOMAIN / abstain candidate,CH_09,CH_09_B2,SMU-01,,False,True,False,False,26170
+SPARK_CH_00235,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00236,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00237,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00238,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00239,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00240,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00241,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00242,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00243,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00244,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00245,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00246,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00247,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00248,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00249,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00250,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00251,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00252,HARD_LIMIT_BREACH_24H,Engineering Safety,24h exceeds datasheet limit,Hard safety rejection candidate,CH_10,CH_10_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00253,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00254,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00255,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00256,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00257,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00258,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00259,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00260,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00261,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00262,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00263,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00264,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00265,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00266,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00267,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00268,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00269,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B1,SMU-01,,True,False,False,False,26170
+SPARK_CH_00270,HARD_LIMIT_BREACH_168H,Engineering Safety / evaluation,Late datasheet-limit breach,Late hard-fail truth,CH_11,CH_11_B2,SMU-01,,True,False,False,False,26170
+SPARK_CH_00271,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B1,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00272,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B2,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00273,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B1,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00274,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B2,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00275,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B1,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00276,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B2,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00277,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B1,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00278,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B2,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00279,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B1,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00280,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B2,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00281,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B1,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00282,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B2,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00283,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B1,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00284,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B2,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00285,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B1,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00286,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B2,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00287,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B1,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00288,MISSING_24H,Data Trust,Required 24h row absent,RETEST / insufficient evidence candidate,CH_12,CH_12_B2,SMU-01,MISSING_24H,False,False,False,False,26170
+SPARK_CH_00289,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B1,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00290,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B2,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00291,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B1,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00292,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B2,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00293,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B1,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00294,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B2,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00295,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B1,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00296,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B2,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00297,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B1,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00298,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B2,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00299,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B1,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00300,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B2,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00301,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B1,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00302,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B2,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00303,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B1,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00304,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B2,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00305,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B1,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00306,MISSING_0H,Data Trust,Required 0h row absent,RETEST / insufficient evidence candidate,CH_13,CH_13_B2,SMU-01,MISSING_0H,False,False,False,False,26170
+SPARK_CH_00307,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00308,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00309,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00310,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00311,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00312,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00313,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00314,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00315,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00316,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00317,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00318,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00319,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00320,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00321,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00322,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00323,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00324,CONDITION_MISMATCH,Data Trust,Condition mismatch flag injected,Data Trust failure candidate,CH_14,CH_14_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00325,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00326,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00327,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00328,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00329,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00330,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00331,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00332,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00333,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00334,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00335,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00336,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00337,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00338,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00339,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00340,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00341,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B1,SMU-01,,False,False,False,False,26170
+SPARK_CH_00342,UNUSABLE_FOR_ML,Data Trust,usable_for_ml=False on early evidence,Data Trust failure candidate,CH_15,CH_15_B2,SMU-01,,False,False,False,False,26170
+SPARK_CH_00343,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00344,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00345,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00346,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00347,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00348,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00349,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00350,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00351,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00352,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00353,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00354,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00355,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00356,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00357,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00358,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00359,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00360,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00361,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00362,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B1,SMU-01,,False,False,True,False,26170
+SPARK_CH_00363,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00364,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00365,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00366,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00367,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00368,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00369,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00370,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00371,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00372,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00373,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00374,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00375,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00376,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00377,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00378,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00379,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00380,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00381,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00382,LOT_WIDE_SHIFT,Lot Intelligence / Drift,Entire lot shifted upward,Lot health escalation / population drift,CH_LOT_SHIFT,CH_LOT_SHIFT_B2,SMU-01,,False,False,True,False,26170
+SPARK_CH_00383,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00384,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00385,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00386,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00387,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00388,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00389,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00390,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00391,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00392,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00393,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00394,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00395,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00396,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00397,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00398,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00399,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00400,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00401,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00402,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00403,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00404,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00405,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00406,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00407,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00408,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00409,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00410,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00411,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00412,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00413,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00414,BATCH_LOCAL_SHIFT,Lot Intelligence / Commonality,Single batch shifted within mixed lot,Batch commonality candidate,CH_MIXED_LOT,CH_MIXED_BAD_BATCH,SMU-01,,False,False,True,False,26170
+SPARK_CH_00415,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00416,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00417,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00418,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00419,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00420,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00421,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00422,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00423,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00424,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00425,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00426,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00427,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00428,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00429,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00430,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B1,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00431,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00432,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00433,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00434,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00435,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00436,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00437,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00438,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00439,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00440,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00441,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00442,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00443,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00444,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00445,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00446,INSTRUMENT_COMMONALITY,Commonality,Abnormal population concentrated on one instrument,Instrument enrichment candidate,CH_INSTRUMENT_LOT,CH_INSTRUMENT_B2,SMU-COMMONALITY,,False,False,True,False,26170
+SPARK_CH_00447,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00448,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00449,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00450,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00451,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00452,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00453,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00454,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00455,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00456,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00457,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00458,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00459,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00460,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00461,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00462,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00463,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00464,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00465,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00466,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00467,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00468,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00469,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00470,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00471,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00472,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00473,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00474,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170
+SPARK_CH_00475,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B1,SMU-01,,False,False,False,True,26170
+SPARK_CH_00476,CALIBRATION_STRESS,Calibration Monitor,Late truth intentionally difficult for early forecast,Coverage stress candidate,CH_19,CH_19_B2,SMU-01,,False,False,False,True,26170

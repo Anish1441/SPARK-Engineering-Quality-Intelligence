@@ -87,6 +87,26 @@ def commonality_engine(
 
     commonalities.sort(key=lambda x: (x["enrichment_ratio"], x["risky_support_pct"]), reverse=True)
 
+    # Preserve cross-dimension visibility. A pure global top-N can be monopolised
+    # by many lot/batch categories and hide a strong instrument/part commonality.
+    # Keep the strongest association from each available categorical field first,
+    # then fill the remaining slots by global rank.
+    selected_commonalities: list[dict[str, Any]] = []
+    selected_keys: set[tuple[str, str]] = set()
+    for field in categorical_cols:
+        hit = next((x for x in commonalities if x["field"] == field), None)
+        if hit is not None:
+            selected_commonalities.append(hit)
+            selected_keys.add((str(hit["field"]), str(hit["value"])))
+    for item in commonalities:
+        key = (str(item["field"]), str(item["value"]))
+        if key in selected_keys:
+            continue
+        selected_commonalities.append(item)
+        selected_keys.add(key)
+        if len(selected_commonalities) >= 12:
+            break
+
     f = features.copy()
     f["component_id"] = f["component_id"].astype(str)
     fr = f[f["component_id"].isin(risky_ids)]
@@ -113,7 +133,7 @@ def commonality_engine(
         "mode": "SPARK COMMONALITY ENGINE",
         "risky_components": len(risky),
         "reference_components": len(reference),
-        "commonalities": commonalities[:12],
+        "commonalities": selected_commonalities[:12],
         "numeric_shifts": numeric_shifts[:8],
         "causal_claim": False,
         "semantics": (

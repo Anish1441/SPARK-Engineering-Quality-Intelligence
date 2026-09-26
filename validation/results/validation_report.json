@@ -1,0 +1,63 @@
+{
+  "mode": "SPARK EXPECTED-VS-ACTUAL VALIDATION",
+  "components": 476,
+  "scenario_families": 19,
+  "strict_component_passes": 300,
+  "strict_component_failures": 0,
+  "informational_components": 176,
+  "population_checks": [
+    {
+      "check": "LOT_WIDE_SHIFT_HEALTH",
+      "status": "PASS",
+      "observed": "ALERT",
+      "expected": "ELEVATED or ALERT"
+    },
+    {
+      "check": "BATCH_LOCAL_COMMONALITY",
+      "status": "PASS",
+      "observed": "FOUND",
+      "expected": "CH_MIXED_BAD_BATCH enriched in risky population"
+    },
+    {
+      "check": "INSTRUMENT_COMMONALITY",
+      "status": "PASS",
+      "observed": "FOUND",
+      "expected": "SMU-COMMONALITY enriched in risky population"
+    },
+    {
+      "check": "CALIBRATION_STRESS",
+      "status": "PASS",
+      "observed": "RECALIBRATION_REVIEW",
+      "expected": "WATCH or RECALIBRATION_REVIEW"
+    }
+  ],
+  "calibration_full_challenge": {
+    "available": true,
+    "status": "RECALIBRATION_REVIEW",
+    "mode": "SPARK CALIBRATION MONITOR",
+    "evaluation_components": 422,
+    "metrics": [
+      {
+        "metric": "central_90_interval_coverage",
+        "expected_pct": 90.0,
+        "observed_pct": 60.19,
+        "gap_percentage_points": -29.81,
+        "state": "UNDER_COVERAGE",
+        "n": 422
+      },
+      {
+        "metric": "one_sided_safety_upper_coverage",
+        "expected_pct": 99.5,
+        "observed_pct": 95.73,
+        "gap_percentage_points": -3.77,
+        "state": "WATCH",
+        "n": 422
+      }
+    ],
+    "recalibration_review_required": true,
+    "auto_recalibration": false,
+    "semantics": "Observed interval coverage is backtested using evaluation-only 168h truth. The monitor can request review but never changes production calibration automatically."
+  },
+  "commonality_causal_claim": false,
+  "note": "PASS/FAIL rules are applied only where the implemented contract gives a clear expected behavior. INFO scenarios are diagnostic/model-response observations and are not silently converted into failures."
+}

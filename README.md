@@ -1676,3 +1676,58 @@ Validation + deployment finalization
 ---
 
 **SPARK is an engineering decision-support prototype. Final acceptance, rejection, qualification, or release of safety- or mission-critical hardware remains an authorized engineering/QA responsibility.**
+
+
+---
+
+## Validation Challenge Dataset
+
+SPARK includes a deterministic validation-challenge framework for testing the complete reliability-decision pipeline against normal, abnormal, data-quality, model-applicability, forecasting, and population-level conditions.
+
+### Challenge dataset
+
+The generated challenge dataset preserves the same 25-column cleaned long-form schema used by the Phase-1 pipeline.
+
+Current validation population:
+
+- **476 components**
+- **1,868 measurement rows**
+- **19 scenario families**
+- checkpoints at **0h, 24h, 96h, and 168h**
+- datasheet leakage upper limit retained at **175 uA**
+- deterministic generation for reproducibility
+
+The generator uses the original Phase-1 training data only to establish realistic reference distributions and historical baselines. Hidden validation truth is never provided to Module A or Module B as model input.
+
+### Scenario coverage
+
+The challenge includes nominal cases, borderline early anomalies, recovery patterns, progressive degradation, late acceleration, improving and deteriorating 96h trajectories, out-of-domain cases, hard electrical failures, missing checkpoints, condition mismatch, unusable evidence, lot-wide shift, batch-local excursion, instrument commonality, and calibration stress.
+
+### Validation artifacts
+
+The repository contains the deterministic generator, validation runner, generated challenge dataset, hidden truth file, manifest, component-level results, scenario summary, population checks, JSON report, and Markdown validation report.
+
+### Current challenge result
+
+- **300 strict component PASS**
+- **0 strict component FAIL**
+- **176 informational/model-response cases**
+
+Population-level validation confirmed:
+
+- Lot-wide shift health: **ALERT**
+- Batch-local commonality: **FOUND**
+- Instrument commonality: **FOUND**
+- Calibration stress: **RECALIBRATION_REVIEW**
+
+The challenge also exposed and helped correct two integration issues: hard observed engineering-limit violations must take precedence over a non-critical Data Trust HOLD, and commonality output should preserve useful evidence across categorical dimensions instead of allowing one dimension to consume the complete top-N list.
+
+No Module-A or Module-B model artifact was retrained as part of these corrections.
+
+### Reproducing validation
+
+Generate the challenge dataset with `python tools\generate_validation_challenge.py`, run expected-vs-actual validation with `python tools\run_validation_challenge.py`, and run regression tests with `python -m pytest -q`.
+
+Current regression status: **59 passed**.
+
+The validation dataset is synthetic and designed for prototype verification. These results demonstrate behavior under the implemented challenge design and are not a guarantee of performance on unseen real production or flight-hardware data.
