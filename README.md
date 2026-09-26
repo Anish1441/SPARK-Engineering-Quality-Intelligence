@@ -1,4 +1,5 @@
 # SPARK — Engineering Quality Intelligence
+https://spark-engineering-quality-intelligence.onrender.com/
 
 > **S.P.A.R.K. — Transforming Burn-In Data into Actionable Reliability Intelligence**
 > Smart India Hackathon 2026 · Problem Statement 26170 · Team VIKRITI
