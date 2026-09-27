@@ -1,4 +1,4 @@
-<img width="2402" height="1340" alt="image" src="https://github.com/user-attachments/assets/d24ab15d-3790-4121-b7fe-650e377c212e" /># SPARK S.P.A.R.K. — Smart Predictive Anomaly & Reliability Knowledgebase
+Reliability Knowledgebase
 Transforming Burn-In Data into Actionable Reliability Intelligence
 
 
