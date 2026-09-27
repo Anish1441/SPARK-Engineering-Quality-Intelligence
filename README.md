@@ -9,7 +9,6 @@ Reliability → the core purpose of the system
 Knowledgebase → traceability, evidence, QA decisions, model/lot history
 
 https://spark-engineering-quality-intelligence.onrender.com/
-
 (The application might take up to 1min open due to inactivity)
 
 > **S.P.A.R.K. — Transforming Burn-In Data into Actionable Reliability Intelligence**
