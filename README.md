@@ -1743,3 +1743,114 @@ Generate the challenge dataset with `python tools\generate_validation_challenge.
 Current regression status: **59 passed**.
 
 The validation dataset is synthetic and designed for prototype verification. These results demonstrate behavior under the implemented challenge design and are not a guarantee of performance on unseen real production or flight-hardware data.
+
+
+
+
+ Below is the clickable architecture . By click any box from the below diagram, it will redirect to its respective code page. Pls try it out!!
+
+
+flowchart TD
+
+subgraph group_interface["User Interface"]
+  node_browser["SPARK Dashboard<br/>[app.js]"]
+  node_webapp["Flask API<br/>[app.py]"]
+end
+
+subgraph group_screening["Screening Workflow"]
+  node_datasets[("Dataset Manager<br/>[dataset_manager.py]")]
+  node_analysis["Dataset Analysis<br/>[analysis_engine.py]"]
+  node_applicability["Applicability Gate<br/>[applicability.py]"]
+  node_trust["Data Trust Gate<br/>[gates.py]"]
+  node_safety["Engineering Safety<br/>[gates.py]"]
+  node_rolling["Rolling Forecast"]
+  node_risk["Reliability Risk<br/>[risk_engine.py]"]
+  node_explain["Decision Explanation<br/>[explainability.py]"]
+end
+
+subgraph group_models["Model Evidence"]
+  node_adapter["Pipeline Adapter"]
+  node_features["Feature Engineering<br/>[features.py]"]
+  node_modulea["Module A Anomalies"]
+  node_moduleb["Module B Forecast<br/>[module_b_96h.py]"]
+  node_modelsstore[("Model Artifacts")]
+end
+
+subgraph group_population["Population Intelligence"]
+  node_lot["Lot Intelligence"]
+  node_commonality["Commonality Engine<br/>[commonality.py]"]
+  node_drift["Drift Observatory<br/>[drift.py]"]
+  node_calibration["Calibration Monitor<br/>[calibration.py]"]
+end
+
+subgraph group_governance["QA Governance"]
+  node_qa["QA Governance<br/>[governance.py]"]
+  node_ledger[("Traceability Ledger<br/>[qa_manager.py]")]
+  node_learning["Feedback Learning"]
+  node_registry["Model Registry<br/>[model_registry.py]"]
+end
+
+node_engineer(("Reliability Engineer"))
+
+node_engineer -->|"uses"| node_browser
+node_browser -->|"calls API"| node_webapp
+node_webapp -->|"loads datasets"| node_datasets
+node_webapp -->|"analyzes data"| node_analysis
+node_webapp -->|"checks applicability"| node_applicability
+node_webapp -->|"checks evidence"| node_trust
+node_webapp -->|"checks limits"| node_safety
+node_webapp -->|"requests predictions"| node_adapter
+node_adapter -->|"builds features"| node_features
+node_adapter -->|"runs anomaly model"| node_modulea
+node_adapter -->|"runs forecast model"| node_moduleb
+node_adapter -->|"loads artifacts"| node_modelsstore
+node_webapp -->|"updates trajectory"| node_rolling
+node_webapp -->|"fuses evidence"| node_risk
+node_webapp -->|"explains decision"| node_explain
+node_webapp -->|"summarizes lots"| node_lot
+node_webapp -->|"finds commonality"| node_commonality
+node_webapp -->|"checks drift"| node_drift
+node_webapp -->|"checks calibration"| node_calibration
+node_webapp -->|"evaluates review"| node_qa
+node_webapp -->|"records decisions"| node_ledger
+node_webapp -->|"summarizes feedback"| node_learning
+node_webapp -->|"reports model status"| node_registry
+node_ledger -->|"provides QA history"| node_learning
+node_webapp -->|"returns results"| node_browser
+
+click node_browser "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/static/js/app.js"
+click node_webapp "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/app.py"
+click node_datasets "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/dataset_manager.py"
+click node_analysis "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/analysis_engine.py"
+click node_applicability "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/applicability.py"
+click node_trust "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/gates.py"
+click node_safety "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/gates.py"
+click node_adapter "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/pipeline_adapter.py"
+click node_features "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/bundled_phase1/src/sih26170/features.py"
+click node_modulea "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/bundled_phase1/src/sih26170/models/module_a_anomaly.py"
+click node_moduleb "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/bundled_phase1/src/sih26170/models/module_b_96h.py"
+click node_modelsstore "https://github.com/anish1441/spark-engineering-quality-intelligence/tree/main/bundled_phase1/artifacts/models"
+click node_rolling "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/rolling_forecast.py"
+click node_risk "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/risk_engine.py"
+click node_explain "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/explainability.py"
+click node_lot "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/lot_intelligence.py"
+click node_commonality "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/commonality.py"
+click node_drift "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/drift.py"
+click node_calibration "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/calibration.py"
+click node_qa "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/governance.py"
+click node_ledger "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/qa_manager.py"
+click node_learning "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/feedback_learning.py"
+click node_registry "https://github.com/anish1441/spark-engineering-quality-intelligence/blob/main/core/model_registry.py"
+
+classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
+classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
+classDef toneTeal fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
+class node_browser,node_webapp toneBlue
+class node_datasets,node_analysis,node_applicability,node_trust,node_safety,node_rolling,node_risk,node_explain toneAmber
+class node_adapter,node_features,node_modulea,node_moduleb,node_modelsstore toneMint
+class node_lot,node_commonality,node_drift,node_calibration toneRose
+class node_qa,node_ledger,node_learning,node_registry,node_engineer toneIndigo
