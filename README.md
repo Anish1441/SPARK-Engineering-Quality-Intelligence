@@ -1,4 +1,4 @@
-# SPARK S.P.A.R.K. — Smart Predictive Anomaly & Reliability Knowledgebase
+<img width="2402" height="1340" alt="image" src="https://github.com/user-attachments/assets/d24ab15d-3790-4121-b7fe-650e377c212e" /># SPARK S.P.A.R.K. — Smart Predictive Anomaly & Reliability Knowledgebase
 Transforming Burn-In Data into Actionable Reliability Intelligence
 
 
@@ -10,6 +10,10 @@ Knowledgebase → traceability, evidence, QA decisions, model/lot history
 
 https://spark-engineering-quality-intelligence.onrender.com/
 (The application might take up to 1min open due to inactivity)
+
+https://youtu.be/TNlxFjtEYTU
+(Youtube link talking about the project)
+
 
 > **S.P.A.R.K. — Transforming Burn-In Data into Actionable Reliability Intelligence**
 > Smart India Hackathon 2026 · Problem Statement 26170 · Team VIKRITI
